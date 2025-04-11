@@ -46,3 +46,4 @@ backend/__pycache__/
 backend/*sqlite3
 backend/.envbackend/.pytest_cache/
 
+.vscode
