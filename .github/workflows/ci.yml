@@ -54,42 +54,40 @@ jobs:
       # - name: Run Frontend Tests
       #   run: pnpm test
 
-  # --- Backend Checks Job (Placeholder) ---
-#  backend-checks:
-#    name: Backend Checks (Placeholder)
-#    runs-on: ubuntu-latest
-# Optional: run backend checks only if frontend checks pass. Remove if parallel execution is desired.
-# needs: frontend-checks
+  # --- Backend Checks Job ---
+  backend-checks:
+    name: Backend Checks
+    runs-on: ubuntu-latest
 
-#    defaults:
-#      run:
-#        working-directory: ./backend # Run commands in backend dir
+    defaults:
+      run:
+        working-directory: ./backend
 
-#    steps:
-#      - name: Checkout Code
-#        uses: actions/checkout@v4
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-#      - name: Set up Python Environment
-#        uses: actions/setup-python@v5
-#        with:
-#          python-version: "3.11" # Or your target Python version
-# Optional: Add caching for pip/poetry later
+      - name: Set up Python Environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13" # Match the version used in pyproject.toml
+          # Optional: Add caching for pip later
+          # cache: 'pip'
+          # cache-dependency-path: backend/requirements-dev.txt
 
-#      - name: Install Backend Dependencies (Placeholder)
-#        run: echo "Skipping backend dependency install for now..."
-# Example: run: pip install -r requirements.txt
-# Example: run: poetry install --no-root
+      - name: Install Backend Dev Dependencies
+        run: pip install -r requirements-dev.txt # Install ALL deps for checking
 
-#      - name: Lint Backend Code (Placeholder)
-#        run: echo "Skipping backend linting for now..."
-# Example: run: flake8 .
-# Example: run: black --check .
+      - name: Check Backend Code Formatting (Black) ⚫
+        run: black --check --diff . # Check formatting, show diff on failure
 
-#      - name: Check Backend Code Formatting (Placeholder)
-#        run: echo "Skipping backend formatting check for now..."
-# Example: run: isort --check .
-# Example: run: black --check . --diff
+      - name: Check Backend Import Sorting (isort)  сортировка
+        run: isort --check-only --diff . # Check import sorting, show diff on failure
 
-# - name: Run Backend Tests (Placeholder) 🧪 # Uncomment when tests are added
-#  run: echo "Skipping backend tests for now..."
-#  # Example: run: pytest
+      - name: Lint Backend Code (Flake8)
+        run: flake8 . # Run flake8 linter
+
+
+      # - name: Run Backend Tests (Placeholder) 🧪 # Uncomment when tests are added
+      #   run: echo "Skipping backend tests for now..."
+      #   # Example: run: pytest
