@@ -1,0 +1,6 @@
+# frontend/.prettierignore
+node_modules
+.next
+build
+out
+coverage
