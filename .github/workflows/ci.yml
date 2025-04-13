@@ -1,0 +1,95 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main]
+    paths: # Only run workflow if files in these paths change
+      - "frontend/**"
+      - "backend/**"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - "backend/**"
+      - ".github/workflows/ci.yml"
+
+jobs:
+  # --- Frontend Checks Job ---
+  frontend-checks:
+    name: Frontend Checks
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./frontend # Run commands in frontend dir
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js and pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install Frontend Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint Frontend Code
+        run: pnpm run lint
+
+      - name: Check Frontend Code Formatting
+        run: pnpm run format:check
+
+      - name: Build Frontend Application
+        run: pnpm run build
+
+      # - name: Run Frontend Tests
+      #   run: pnpm test
+
+  # --- Backend Checks Job (Placeholder) ---
+  backend-checks:
+    name: Backend Checks (Placeholder)
+    runs-on: ubuntu-latest
+    # Optional: run backend checks only if frontend checks pass. Remove if parallel execution is desired.
+    # needs: frontend-checks
+
+    defaults:
+      run:
+        working-directory: ./backend # Run commands in backend dir
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python Environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11" # Or your target Python version
+          # Optional: Add caching for pip/poetry later
+
+      - name: Install Backend Dependencies (Placeholder)
+        run: echo "Skipping backend dependency install for now..."
+        # Example: run: pip install -r requirements.txt
+        # Example: run: poetry install --no-root
+
+      - name: Lint Backend Code (Placeholder)
+        run: echo "Skipping backend linting for now..."
+        # Example: run: flake8 .
+        # Example: run: black --check .
+
+      - name: Check Backend Code Formatting (Placeholder)
+        run: echo "Skipping backend formatting check for now..."
+        # Example: run: isort --check .
+        # Example: run: black --check . --diff
+
+      # - name: Run Backend Tests (Placeholder) 🧪 # Uncomment when tests are added
+      #  run: echo "Skipping backend tests for now..."
+      #  # Example: run: pytest
