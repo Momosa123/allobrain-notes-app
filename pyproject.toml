@@ -20,38 +20,11 @@ max-line-length = 88
 extend-ignore = [
     "E203", # Whitespace before ':', often conflicts with Black
     "W503", # Line break before binary operator, conflicts with Black
-    # Add other error codes to ignore if needed, e.g.:
-    # "E501", # Line too long (if you absolutely must exceed max-line-length sometimes)
-    # "F401", # Module imported but unused (sometimes needed for __init__.py)
 ]
 # Specify directories/files to exclude (e.g., migrations, venv)
 exclude = [
     ".venv",
     "__pycache__",
     "*/migrations/versions/*", # Alembic migrations
-    # Add other patterns if needed
+
 ]
-# Configure plugins (using per-file-ignores is often better in a dedicated file)
-# Example: Increase complexity check limit for tests if needed
-# per-file-ignores =
-#    tests/*: C901
-
-# Enable specific plugins explicitly if needed (though often detected automatically)
-# select = B,C,E,F,W,T4,B9 # Example: Default + Bugbear(B) + Comprehensions(C) + Simplify(S) is often implicitly used
-
-# Configure Bugbear (B) plugin options if needed
-# Example:
-# extend-immutable-calls = []
-
-# Configure Simplify (SIM) plugin options if needed
-# Example:
-# max-loops = 5
-
-# Configure Comprehensions (C) plugin options if needed
-# Example:
-# allow-dict-calls-with-keyword-arguments = true
-
-# --- Tool Pre-Commit ---
-# Placeholder for pre-commit configuration if we manage it via pyproject.toml
-# (Alternative is .pre-commit-config.yaml)
-#[tool.pre-commit]
