@@ -1,0 +1,41 @@
+# .pre-commit-config.yaml (at the project root)
+
+# Optional: Define default settings for hooks if needed
+# default_stages: [commit]
+# default_language_version: python: python3.11 # Match your project's Python version
+
+repos:
+  # --- Essential Hooks ---
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0 # Use a recent stable version
+    hooks:
+      - id: check-yaml # Checks yaml files for parseable syntax.
+      - id: end-of-file-fixer # Ensures files end with a newline.
+      - id: trailing-whitespace # Trims trailing whitespace.
+      - id: check-added-large-files # Prevent committing large files
+
+  # --- Python Formatting & Linting Hooks ---
+  - repo: https://github.com/psf/black
+    rev: 24.8.0 # Use the version of Black you installed or a recent stable one
+    hooks:
+      - id: black
+        language_version: python3.13 # Ensure it uses the correct python version
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2 # Use the version of isort you installed or a recent stable one
+    hooks:
+      - id: isort
+        name: isort (python)
+        args: ["--profile", "black"] # Ensure compatibility with black
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.1.1 # Use the version of Flake8 you installed or a recent stable one
+    hooks:
+      - id: flake8
+        # Optional: add dependencies needed by flake8 plugins
+        additional_dependencies:
+          - flake8-bugbear
+          - flake8-comprehensions
+          - flake8-simplify
+        # Ensure flake8 uses the same python version if necessary
+        # language_version: python3.13
