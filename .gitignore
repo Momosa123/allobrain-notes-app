@@ -1,4 +1,4 @@
-# Frontend 
+# Frontend
 # dependencies
 frontend/node_modules
 frontend/.pnp
@@ -43,6 +43,9 @@ frontend/next-env.d.ts
 # Backend
 backend/.venv/
 backend/__pycache__/
+*.pyc
+*.pyo
+*.pyd
 backend/*sqlite3
 backend/.envbackend/.pytest_cache/
 
