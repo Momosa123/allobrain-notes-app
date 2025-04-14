@@ -2,6 +2,7 @@ import logging
 
 from app.db.base import Base
 from app.db.session import engine
+from app.models.note import Note  # noqa: F401
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
