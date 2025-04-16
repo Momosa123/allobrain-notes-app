@@ -87,5 +87,10 @@ jobs:
       - name: Lint Backend Code (Flake8)
         run: flake8 . # Run flake8 linter
 
+      - name: Set Dummy DATABASE_URL for Settings Loading in Tests
+        env:
+          DATABASE_URL: "sqlite:///./ci_dummy.db" # Dummy value needed for Settings init
+        run: echo "DATABASE_URL set for pytest import phase"
+
       - name: Run Backend Tests
         run: pytest
