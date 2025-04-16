@@ -58,6 +58,8 @@ jobs:
   backend-checks:
     name: Backend Checks
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: "sqlite:///./ci_dummy.db"
 
     defaults:
       run:
@@ -70,27 +72,19 @@ jobs:
       - name: Set up Python Environment
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13" # Match the version used in pyproject.toml
-          # Optional: Add caching for pip later
-          # cache: 'pip'
-          # cache-dependency-path: backend/requirements-dev.txt
+          python-version: "3.13"
 
       - name: Install Backend Dev Dependencies
         run: pip install -r requirements-dev.txt # Install ALL deps for checking
 
       - name: Check Backend Code Formatting (Black) ⚫
-        run: black --check --diff . # Check formatting, show diff on failure
+        run: black --check --diff .
 
       - name: Check Backend Import Sorting (isort)  сортировка
-        run: isort --check-only --diff . # Check import sorting, show diff on failure
+        run: isort --check-only --diff .
 
       - name: Lint Backend Code (Flake8)
-        run: flake8 . # Run flake8 linter
-
-      - name: Set Dummy DATABASE_URL for Settings Loading in Tests
-        env:
-          DATABASE_URL: "sqlite:///./ci_dummy.db" # Dummy value needed for Settings init
-        run: echo "DATABASE_URL set for pytest import phase"
+        run: flake8 .
 
       - name: Run Backend Tests
         run: pytest
