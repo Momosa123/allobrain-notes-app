@@ -22,7 +22,7 @@ frontend/build
 # misc
 frontend/.DS_Store
 frontend/*.pem
-roadmap.md
+
 
 # debug
 frontend/npm-debug.log*
@@ -52,7 +52,20 @@ backend/*.db
 backend/*.sqlite
 backend/*.sqlite3
 
+# Env files
+backend/.env
 
-backend/.envbackend/.pytest_cache/
+# Pytest cache
+backend/.pytest_cache/
 
+# VSCode specific
 .vscode
+
+# General
+.DS_Store
+*.pem
+*.log
+
+#misc
+roadmap.md
+challenge.md

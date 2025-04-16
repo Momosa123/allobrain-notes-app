@@ -87,7 +87,5 @@ jobs:
       - name: Lint Backend Code (Flake8)
         run: flake8 . # Run flake8 linter
 
-
-      # - name: Run Backend Tests (Placeholder) 🧪 # Uncomment when tests are added
-      #   run: echo "Skipping backend tests for now..."
-      #   # Example: run: pytest
+      - name: Run Backend Tests
+        run: pytest
