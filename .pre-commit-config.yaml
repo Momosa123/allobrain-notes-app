@@ -29,13 +29,11 @@ repos:
         args: ["--profile", "black"] # Ensure compatibility with black
 
   - repo: https://github.com/pycqa/flake8
-    rev: 7.1.1 # Use the version of Flake8 you installed or a recent stable one
+    rev: 7.1.1 #  version of Flake8  installed or a recent stable one
     hooks:
       - id: flake8
-        # Optional: add dependencies needed by flake8 plugins
+        # dependencies needed by flake8 plugins
         additional_dependencies:
           - flake8-bugbear
           - flake8-comprehensions
           - flake8-simplify
-        # Ensure flake8 uses the same python version if necessary
-        # language_version: python3.13
