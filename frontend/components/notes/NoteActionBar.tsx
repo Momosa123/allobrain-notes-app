@@ -24,7 +24,7 @@ export default function NoteActionBar({
           tooltipContent="New Note"
           srText="New Note"
           onClick={onCreateNote}
-          iconClassName="size-5"
+          iconSize="size-5"
         />
 
         <IconButton
@@ -35,7 +35,7 @@ export default function NoteActionBar({
           srText="Delete Note"
           disabled={selectedNoteId === null}
           className="text-red-500 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
-          iconClassName="size-5"
+          iconSize="size-5"
         />
 
         <IconButton
@@ -44,7 +44,7 @@ export default function NoteActionBar({
           srText="View Versions"
           disabled // Désactivé pour l'instant
           // onClick={handleShowVersions} // Fonction future
-          iconClassName="size-5" // Personnalise la taille si besoin
+          iconSize="size-5" // Personnalise la taille si besoin
         />
       </div>
     </TooltipProvider>
