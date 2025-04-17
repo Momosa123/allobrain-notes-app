@@ -1,7 +1,7 @@
 'use client';
 // Import necessary dependencies for data fetching and types
-import { useQuery } from '@tanstack/react-query';
-import { fetchNotes, Note } from '@/lib/api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { fetchNotes, Note, createNote, NoteCreatePayload } from '@/lib/api';
 import { useState } from 'react';
 import NoteSidebar from '@/components/notes/NoteSidebar';
 import NoteEditor from '@/components/notes/NoteEditor';
@@ -12,6 +12,8 @@ import NoteActionBar from '@/components/notes/NoteActionBar';
 export default function Home() {
   // Fetch notes using React Query hook
   const [selectedNoteId, setSelectedNoteId] = useState<number | null>(null);
+  const queryClient = useQueryClient();
+
   const {
     data: notes,
     isError,
@@ -22,9 +24,34 @@ export default function Home() {
     queryFn: fetchNotes,
   });
 
+  const createMutation = useMutation({
+    mutationFn: createNote,
+    onSuccess: (newlyCreatedNote) => {
+      console.log('Note created:', newlyCreatedNote);
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
+      setSelectedNoteId(newlyCreatedNote.id);
+    },
+    onError: (error) => {
+      console.error('Failed to create note:', error);
+    },
+  });
+
   const selectedNote = notes?.find((note) => note.id === selectedNoteId);
 
   console.log(selectedNote);
+
+  const handleSelectNote = (id: number) => {
+    setSelectedNoteId(id);
+  };
+
+  const handleCreateNote = () => {
+    const defaultNoteData: NoteCreatePayload = {
+      title: 'Untitled',
+      content: '',
+    };
+    createMutation.mutate(defaultNoteData);
+  };
+
   // Show loading state while data is being fetched
   if (isLoading) return <div>Loading...</div>;
 
@@ -39,7 +66,7 @@ export default function Home() {
         <NoteSidebar
           notes={notes}
           selectedNoteId={selectedNoteId}
-          onSelectNote={setSelectedNoteId}
+          onSelectNote={handleSelectNote}
           isLoading={isLoading}
         />
       </div>
@@ -47,11 +74,15 @@ export default function Home() {
       <div className="flex flex-1 flex-col">
         <NoteActionBar
           selectedNoteId={selectedNoteId}
-          onCreateNote={() => {}}
+          onCreateNote={handleCreateNote}
         />
         <div className="flex-1 overflow-y-auto">
-          {!isLoading && <NoteEditor selectedNote={selectedNote} />}
-          {isLoading && <div>Loading...</div>}
+          {(isLoading || createMutation.isPending) && (
+            <div className="p-6">Loading...</div>
+          )}
+          {!(isLoading || createMutation.isPending) && (
+            <NoteEditor selectedNote={selectedNote} />
+          )}
         </div>
       </div>
     </main>
