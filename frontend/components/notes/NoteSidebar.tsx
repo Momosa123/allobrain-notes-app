@@ -7,7 +7,9 @@ type NoteSidebarProps = {
   onSelectNote: (noteId: number) => void;
   isLoading: boolean;
 };
-
+/*
+  NoteSidebar component that displays a list of notes
+ */
 export default function NoteSidebar({
   notes,
   selectedNoteId,
