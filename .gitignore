@@ -69,3 +69,4 @@ backend/.pytest_cache/
 #misc
 roadmap.md
 challenge.md
+DESIGN.md
