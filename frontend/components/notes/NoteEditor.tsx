@@ -2,7 +2,9 @@ import { Note } from '@/lib/api';
 type NoteEditorProps = {
   selectedNote: Note | undefined;
 };
-
+/*
+  NoteEditor component that displays a note
+ */
 export default function NoteEditor({ selectedNote }: NoteEditorProps) {
   if (!selectedNote) {
     return (
