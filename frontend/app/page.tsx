@@ -6,9 +6,8 @@ import { useState } from 'react';
 import NoteSidebar from '@/components/notes/NoteSidebar';
 import NoteEditor from '@/components/notes/NoteEditor';
 import NoteActionBar from '@/components/notes/NoteActionBar';
-/**
- * Home component that displays a list of notes
- * Uses React Query for efficient server state management and caching
+/*
+  Home component that displays a list of notes
  */
 export default function Home() {
   // Fetch notes using React Query hook
