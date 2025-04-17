@@ -15,14 +15,14 @@ interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon: React.ComponentType<LucideProps>; // Type for the Lucid icon
   tooltipContent: React.ReactNode;
   srText: string; // Text for screen readers
-  iconClassName?: string;
+  iconSize?: string;
 }
 
 const IconButton = ({
   icon: Icon,
   tooltipContent,
   srText,
-  iconClassName,
+  iconSize,
   disabled,
   className,
   ...props
@@ -39,7 +39,7 @@ const IconButton = ({
             className={cn('cursor-pointer', className)}
             {...props}
           >
-            <Icon className={iconClassName || 'size-4'} />
+            <Icon className={iconSize || 'size-4'} />
           </Button>
         </span>
       </TooltipTrigger>
