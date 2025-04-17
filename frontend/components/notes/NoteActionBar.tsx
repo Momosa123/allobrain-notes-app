@@ -8,11 +8,14 @@ interface NoteActionBarProps {
   selectedNoteId: number | null;
   onCreateNote: () => void;
 }
+/*
+  NoteActionBar component that displays icons for actions on a note
+ */
 
-const NoteActionBar = ({
+export default function NoteActionBar({
   selectedNoteId,
   onCreateNote,
-}: NoteActionBarProps) => {
+}: NoteActionBarProps) {
   return (
     <TooltipProvider delayDuration={100}>
       <div className="flex h-[57px] items-center justify-end space-x-2 px-4">
@@ -46,6 +49,4 @@ const NoteActionBar = ({
       </div>
     </TooltipProvider>
   );
-};
-
-export default NoteActionBar;
+}
