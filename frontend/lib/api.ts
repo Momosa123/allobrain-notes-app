@@ -17,6 +17,15 @@ const NotesListSchema = z.array(NoteSchema);
 // Export the Note type for use in other components
 export type Note = z.infer<typeof NoteSchema>;
 
+// Schéma Zod pour les données de création d'une note
+const NoteCreateSchema = z.object({
+  title: z.string().min(1, { message: 'Title is required' }),
+  content: z.string(),
+});
+
+// Type inféré pour la création
+export type NoteCreatePayload = z.infer<typeof NoteCreateSchema>;
+
 // Create an axios instance with the base URL
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000',
@@ -71,6 +80,48 @@ export async function fetchNotes(): Promise<Note[]> {
       // Handle unknown errors
       console.error('Unknown error fetching notes:', error);
       throw new Error('An unknown error occurred while fetching notes.');
+    }
+  }
+}
+
+/**
+ * Creates a new note via the backend API.
+ * @param noteData The data for the new note (title, content).
+ * @returns Promise containing the created and validated Note object.
+ * @throws Error if the request fails or the response data is invalid.
+ */
+export async function createNote(noteData: NoteCreatePayload): Promise<Note> {
+  try {
+    const response = await apiClient.post('/api/v1/notes/', noteData);
+    const validationResult = NoteSchema.safeParse(response.data);
+
+    if (!validationResult.success) {
+      console.error(
+        'Create note API response validation failed:',
+        validationResult.error.flatten()
+      );
+      throw new Error(
+        `Invalid data structure received after creating note: ${validationResult.error.message}`
+      );
+    }
+    return validationResult.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        'Axios error creating note:',
+        error.response?.status,
+        error.message
+      );
+      const detail = error.response?.data?.detail || error.message;
+      throw new Error(
+        `Failed to create note: ${error.response?.statusText || 'Server error'} (${error.response?.status ?? 'Network Error'}) - ${detail}`
+      );
+    } else if (error instanceof Error) {
+      console.error('Error creating note:', error.message);
+      throw error;
+    } else {
+      console.error('Unknown error creating note:', error);
+      throw new Error('An unknown error occurred while creating the note.');
     }
   }
 }
