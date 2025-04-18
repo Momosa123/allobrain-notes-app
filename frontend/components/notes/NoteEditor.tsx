@@ -1,27 +1,46 @@
-import { Note } from '@/lib/api';
-type NoteEditorProps = {
-  selectedNote: Note | undefined;
-};
-/*
-  NoteEditor component that displays a note
- */
-export default function NoteEditor({ selectedNote }: NoteEditorProps) {
-  if (!selectedNote) {
-    return (
-      <div className="flex h-full items-center justify-center">
-        <p className="text-gray-500">Select a note or create a new one</p>
-      </div>
-    );
-  }
+import React from 'react';
 
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+
+interface NoteEditorProps {
+  title: string;
+  content: string;
+  onTitleChange: (newTitle: string) => void;
+  onContentChange: (newContent: string) => void;
+}
+
+/**
+ * NoteEditor component that displays a note
+ */
+export default function NoteEditor({
+  title,
+  content,
+  onTitleChange,
+  onContentChange,
+}: NoteEditorProps) {
   return (
-    <div className="mt-24 ml-64 flex h-full flex-col p-6">
-      <h1 className="mb-4 pb-2 text-6xl font-bold">{selectedNote.title}</h1>
-      <div className="flex-1 overflow-y-auto pt-4">
-        <div className="prose mx-auto">
-          <p className="whitespace-pre-wrap">{selectedNote.content}</p>
-        </div>
-      </div>
+    <div className="flex h-full flex-col space-y-4 p-6">
+      {/* Title Input */}
+      <Input
+        placeholder="Note Title"
+        value={title}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          onTitleChange(e.target.value)
+        }
+        className="border-none text-5xl font-bold shadow-none focus-visible:ring-0"
+        aria-label="Note Title"
+      />
+      {/* Content Textarea */}
+      <Textarea
+        placeholder="Start writing your note..."
+        value={content}
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+          onContentChange(e.target.value)
+        }
+        className="flex-1 resize-none border-none text-2xl shadow-none focus-visible:ring-0"
+        aria-label="Note Content"
+      />
     </div>
   );
 }
