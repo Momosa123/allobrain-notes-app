@@ -8,7 +8,7 @@ const NoteSchema = z.object({
   title: z.string(),
   content: z.string(),
   created_at: z.string(),
-  updated_at: z.string().optional(), // Optional since it may not exist for new notes
+  updated_at: z.string().optional().nullable(), // Optional since it may not exist for new notes
 });
 
 // Schema for an array of notes returned from the API
