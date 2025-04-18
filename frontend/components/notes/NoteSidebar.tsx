@@ -34,7 +34,7 @@ export default function NoteSidebar({
   );
 
   return (
-    <ScrollArea className="flex-1 bg-gray-100">
+    <ScrollArea className="radix-scroll-area-viewport-fix flex-1 bg-gray-100">
       <h2 className="p-4 text-4xl font-semibold text-blue-500">AlloNotes</h2>
 
       <div className="space-y-2 p-4">
