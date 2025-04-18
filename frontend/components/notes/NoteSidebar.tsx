@@ -20,10 +20,17 @@ export default function NoteSidebar({
   onSelectNote,
   isLoading,
 }: NoteSidebarProps) {
-  // Sort notes by creation date (descending)
+  // Helper function to get the relevant date for sorting
+  const getSortDate = (note: Note): Date => {
+    // Use updated_at if it exists and is a valid date string, otherwise use created_at
+    // Basic check to prefer updated_at only if it's truthy
+    const dateString = note.updated_at || note.created_at;
+    return new Date(dateString); // Convert string to Date object
+  };
+
+  // Sort notes: most recently updated/created first
   const sortedNotes = [...(notes || [])].sort(
-    (a, b) =>
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    (a, b) => getSortDate(b).getTime() - getSortDate(a).getTime()
   );
 
   return (
