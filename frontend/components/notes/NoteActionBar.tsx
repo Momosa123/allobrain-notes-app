@@ -7,6 +7,7 @@ import IconButton from '../ui/IconButton';
 interface NoteActionBarProps {
   selectedNoteId: number | null;
   onCreateNote: () => void;
+  onDeleteNote: (id: number) => void;
 }
 /*
   NoteActionBar component that displays icons for actions on a note
@@ -15,7 +16,16 @@ interface NoteActionBarProps {
 export default function NoteActionBar({
   selectedNoteId,
   onCreateNote,
+  onDeleteNote,
 }: NoteActionBarProps) {
+  const handleDeleteClick = () => {
+    if (selectedNoteId !== null) {
+      if (window.confirm('Are you sure you want to delete this note?')) {
+        onDeleteNote(selectedNoteId);
+      }
+    }
+  };
+
   return (
     <TooltipProvider delayDuration={100}>
       <div className="flex h-[57px] items-center justify-end space-x-2 px-4">
@@ -33,6 +43,7 @@ export default function NoteActionBar({
             selectedNoteId !== null ? 'Delete Note' : 'Select a note to delete'
           }
           srText="Delete Note"
+          onClick={handleDeleteClick}
           disabled={selectedNoteId === null}
           className="text-red-500 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
           iconSize="size-5"

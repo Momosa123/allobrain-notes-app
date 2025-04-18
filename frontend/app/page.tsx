@@ -1,11 +1,18 @@
 'use client';
 // Import necessary dependencies for data fetching and types
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchNotes, Note, createNote, NoteCreatePayload } from '@/lib/api';
+import {
+  fetchNotes,
+  Note,
+  createNote,
+  NoteCreatePayload,
+  deleteNote,
+} from '@/lib/api';
 import { useState } from 'react';
 import NoteSidebar from '@/components/notes/NoteSidebar';
 import NoteEditor from '@/components/notes/NoteEditor';
 import NoteActionBar from '@/components/notes/NoteActionBar';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 /*
   Home component that displays a list of notes
  */
@@ -27,7 +34,6 @@ export default function Home() {
   const createMutation = useMutation({
     mutationFn: createNote,
     onSuccess: (newlyCreatedNote) => {
-      console.log('Note created:', newlyCreatedNote);
       queryClient.invalidateQueries({ queryKey: ['notes'] });
       setSelectedNoteId(newlyCreatedNote.id);
     },
@@ -36,9 +42,18 @@ export default function Home() {
     },
   });
 
-  const selectedNote = notes?.find((note) => note.id === selectedNoteId);
+  const deleteMutation = useMutation({
+    mutationFn: deleteNote,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
+      setSelectedNoteId(null);
+    },
+    onError: (error) => {
+      console.error('Failed to delete note:', error);
+    },
+  });
 
-  console.log(selectedNote);
+  const selectedNote = notes?.find((note) => note.id === selectedNoteId);
 
   const handleSelectNote = (id: number) => {
     setSelectedNoteId(id);
@@ -52,8 +67,18 @@ export default function Home() {
     createMutation.mutate(defaultNoteData);
   };
 
+  const handleDeleteNote = (id: number) => {
+    deleteMutation.mutate(id);
+  };
+
   // Show loading state while data is being fetched
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
 
   // Show error message if fetch fails
   if (isError)
@@ -75,12 +100,14 @@ export default function Home() {
         <NoteActionBar
           selectedNoteId={selectedNoteId}
           onCreateNote={handleCreateNote}
+          onDeleteNote={handleDeleteNote}
         />
         <div className="flex-1 overflow-y-auto">
-          {(isLoading || createMutation.isPending) && (
-            <div className="p-6">Loading...</div>
-          )}
-          {!(isLoading || createMutation.isPending) && (
+          {isLoading || createMutation.isPending || deleteMutation.isPending ? (
+            <div className="flex h-full items-center justify-center">
+              <LoadingSpinner size="md" />
+            </div>
+          ) : (
             <NoteEditor selectedNote={selectedNote} />
           )}
         </div>

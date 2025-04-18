@@ -17,14 +17,14 @@ const NotesListSchema = z.array(NoteSchema);
 // Export the Note type for use in other components
 export type Note = z.infer<typeof NoteSchema>;
 
-// Schéma Zod pour les données de création d'une note
-const NoteCreateSchema = z.object({
+// Schema for the data to create a note
+const _NoteCreateSchema = z.object({
   title: z.string().min(1, { message: 'Title is required' }),
   content: z.string(),
 });
 
-// Type inféré pour la création
-export type NoteCreatePayload = z.infer<typeof NoteCreateSchema>;
+// Type inferred for the creation of a note
+export type NoteCreatePayload = z.infer<typeof _NoteCreateSchema>;
 
 // Create an axios instance with the base URL
 const apiClient = axios.create({
@@ -50,11 +50,6 @@ export async function fetchNotes(): Promise<Note[]> {
     // Validate the received data with Zod (unchanged)
     const validationResult = NotesListSchema.safeParse(data);
     if (!validationResult.success) {
-      console.error(
-        'API response validation failed:',
-        validationResult.error.flatten()
-      );
-      // Throw a more descriptive error for validation failure
       throw new Error(
         `Invalid data structure received from API: ${validationResult.error.message}`
       );
@@ -62,23 +57,16 @@ export async function fetchNotes(): Promise<Note[]> {
 
     return validationResult.data;
   } catch (error) {
-    // Handle Axios errors (network, 4xx, 5xx) or Zod validation errors
+    // Handle Axios errors  or Zod validation errors
     if (axios.isAxiosError(error)) {
-      console.error(
-        'Axios error fetching notes:',
-        error.response?.status,
-        error.message
-      );
       throw new Error(
         `Failed to fetch notes: ${error.response?.statusText || error.message} (${error.response?.status ?? 'Network Error'})`
       );
     } else if (error instanceof Error) {
       // Handle Zod validation errors or other JS errors
-      console.error('Error fetching notes:', error.message);
-      throw error; // Rethrow the error (will be caught by useQuery)
+      throw error;
     } else {
       // Handle unknown errors
-      console.error('Unknown error fetching notes:', error);
       throw new Error('An unknown error occurred while fetching notes.');
     }
   }
@@ -96,10 +84,6 @@ export async function createNote(noteData: NoteCreatePayload): Promise<Note> {
     const validationResult = NoteSchema.safeParse(response.data);
 
     if (!validationResult.success) {
-      console.error(
-        'Create note API response validation failed:',
-        validationResult.error.flatten()
-      );
       throw new Error(
         `Invalid data structure received after creating note: ${validationResult.error.message}`
       );
@@ -107,21 +91,48 @@ export async function createNote(noteData: NoteCreatePayload): Promise<Note> {
     return validationResult.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error(
-        'Axios error creating note:',
-        error.response?.status,
-        error.message
-      );
       const detail = error.response?.data?.detail || error.message;
       throw new Error(
         `Failed to create note: ${error.response?.statusText || 'Server error'} (${error.response?.status ?? 'Network Error'}) - ${detail}`
       );
     } else if (error instanceof Error) {
-      console.error('Error creating note:', error.message);
       throw error;
     } else {
-      console.error('Unknown error creating note:', error);
       throw new Error('An unknown error occurred while creating the note.');
+    }
+  }
+}
+
+/**
+ * Deletes a note via the backend API.
+ * @param noteId The ID of the note to delete.
+ * @returns Promise<void>
+ * @throws Error if the request fails.
+ */
+export async function deleteNote(noteId: number): Promise<void> {
+  try {
+    const response = await apiClient.delete(`/api/v1/notes/${noteId}`);
+
+    // Wait for a 204 No Content status for a successful deletion
+    if (response.status !== 204) {
+      throw new Error(
+        `Unexpected status code after delete: ${response.status}`
+      );
+    }
+    // No content to return or validate for a 204
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const detail = error.response?.data?.detail || error.message;
+      if (error.response?.status === 404) {
+        throw new Error(`Note with ID ${noteId} not found.`);
+      }
+      throw new Error(
+        `Failed to delete note: ${error.response?.statusText || 'Server error'} (${error.response?.status ?? 'Network Error'}) - ${detail}`
+      );
+    } else if (error instanceof Error) {
+      throw error;
+    } else {
+      throw new Error('An unknown error occurred while deleting the note.');
     }
   }
 }
