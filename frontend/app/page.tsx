@@ -139,7 +139,7 @@ export default function Home() {
 
   const handleCreateNote = () => {
     const defaultNoteData: NoteCreatePayload = {
-      title: 'Untitled',
+      title: '',
       content: '',
     };
     createMutation.mutate(defaultNoteData);
