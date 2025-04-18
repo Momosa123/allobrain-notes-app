@@ -23,7 +23,7 @@ export default function NoteEditor({
     <div className="flex h-full flex-col space-y-4 p-6">
       {/* Title Input */}
       <Input
-        placeholder="Note Title"
+        placeholder="Untitled"
         value={title}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
           onTitleChange(e.target.value)
