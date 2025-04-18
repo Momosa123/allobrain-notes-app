@@ -26,7 +26,9 @@ export default function NoteListItem({
       }`}
       onClick={() => onSelect(note.id)}
     >
-      <h3 className="flex-shrink-0 truncate font-medium">{note.title}</h3>
+      <h3 className="flex-shrink-0 truncate text-lg font-medium">
+        {note.title}
+      </h3>
       <p className="mt-1 flex-shrink-0 text-xs text-gray-600">
         {formattedDate}
       </p>
