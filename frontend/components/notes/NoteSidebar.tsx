@@ -1,8 +1,8 @@
 import React from 'react';
 import { Note } from '@/lib/api';
-import { Button } from '@/components/ui/button';
+
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Pencil } from 'lucide-react';
+
 import NoteListItem from './NoteListItem';
 
 interface NoteSidebarProps {
@@ -45,9 +45,6 @@ export default function NoteSidebar({
                 No notes found
               </p>
             )}
-        {isLoading && (
-          <p className="py-4 text-center text-sm text-gray-500">Loading...</p>
-        )}
       </div>
     </ScrollArea>
   );
