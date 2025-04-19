@@ -46,7 +46,7 @@ export default function NoteActionBar({
 
   return (
     <TooltipProvider delayDuration={100}>
-      <div className="flex h-[57px] items-center justify-end space-x-2 border-b px-4">
+      <div className="flex h-[57px] items-center justify-end space-x-2 px-4">
         <IconButton
           icon={Save}
           tooltipContent={saveTooltip}
