@@ -5,3 +5,4 @@ from .note import (  # noqa: F401
     get_notes,
     update_note,
 )
+from .note_version import get_note_versions, restore_note_version  # noqa: F401

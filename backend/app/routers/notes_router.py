@@ -75,3 +75,53 @@ def delete_note_endpoint(note_id: int, db: Session = Depends(get_db)):
     if deleted_note is None:
         raise HTTPException(status_code=404, detail="Note not found on delete")
     return None
+
+
+# Endpoint to get versions for a specific note
+@router.get("/{note_id}/versions/", response_model=List[schemas.NoteVersion])
+def read_note_versions_endpoint(
+    note_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
+):
+    """
+    Gets a list of versions for a specific note, ordered from newest to oldest.
+    Takes path parameter note_id and query parameters skip and limit.
+    Returns a list of note versions (schema NoteVersion).
+    """
+
+    versions = crud.get_note_versions(db=db, note_id=note_id, skip=skip, limit=limit)
+
+    return versions
+
+
+# Endpoint to restore a note to a specific version
+@router.post(
+    "/{note_id}/versions/{version_id}/restore/",
+    response_model=schemas.Note,  # Returns the updated note
+)
+def restore_note_version_endpoint(
+    note_id: int,  # Included for clarity in the path
+    version_id: int,
+    db: Session = Depends(get_db),
+):
+    """
+    Restores a note to the state of a specific version.
+    Creates a new version of the current state before restoring.
+    Returns the updated Note.
+    """
+    # We pass version_id to the CRUD function.
+    # note_id is implicitly checked because the version belongs to a note.
+    restored_note = crud.restore_note_version(db=db, version_id=version_id)
+
+    if restored_note is None:
+        # This could mean the version_id was invalid, or the original note didn't exist
+        raise HTTPException(
+            status_code=404, detail="Version or original note not found"
+        )
+
+    # Ensure the restored note actually matches the note_id from the path
+    if restored_note.id != note_id:
+        raise HTTPException(
+            status_code=400, detail="Version does not belong to the specified note"
+        )
+
+    return restored_note
