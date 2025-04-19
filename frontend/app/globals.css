@@ -120,3 +120,11 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Workaround for Radix ScrollArea display: table bug */
+/* See: https://github.com/radix-ui/primitives/issues/926 */
+.radix-scroll-area-viewport-fix
+  [data-radix-scroll-area-viewport]
+  > div:first-child {
+  display: block !important;
+}

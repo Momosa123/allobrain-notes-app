@@ -8,7 +8,7 @@ const NoteSchema = z.object({
   title: z.string(),
   content: z.string(),
   created_at: z.string(),
-  updated_at: z.string().optional(), // Optional since it may not exist for new notes
+  updated_at: z.string().optional().nullable(), // Optional since it may not exist for new notes
 });
 
 // Schema for an array of notes returned from the API
@@ -25,6 +25,16 @@ const _NoteCreateSchema = z.object({
 
 // Type inferred for the creation of a note
 export type NoteCreatePayload = z.infer<typeof _NoteCreateSchema>;
+
+// Schema for the data to update a note
+// We expect a title (string) and a content (string).
+export const NoteUpdateSchema = z.object({
+  title: z.string().min(1, 'Title cannot be empty'),
+  content: z.string(), // Can be empty
+});
+
+// Type inferred for the update of a note
+export type NoteUpdatePayload = z.infer<typeof NoteUpdateSchema>;
 
 // Create an axios instance with the base URL
 const apiClient = axios.create({
@@ -136,3 +146,50 @@ export async function deleteNote(noteId: number): Promise<void> {
     }
   }
 }
+
+/**
+ * Updates an existing note.
+ * @param id The ID of the note to update.
+ * @param payload The data to update (title, content).
+ * @returns The updated note data.
+ * @throws If the note is not found (404) or on other server errors.
+ */
+export const updateNote = async ({
+  id,
+  payload,
+}: {
+  id: number;
+  payload: NoteUpdatePayload;
+}): Promise<Note> => {
+  // Validation optionnelle côté client avant envoi (bonne pratique)
+  try {
+    NoteUpdateSchema.parse(payload); // Vérifie que le payload a la bonne structure
+  } catch (error) {
+    console.error('Invalid update payload:', error);
+    // On pourrait rejeter la promesse ou lancer une erreur plus spécifique ici
+    // Pour l'instant, on laisse l'API backend valider principalement.
+    // throw new Error("Invalid data provided for update.");
+  }
+
+  try {
+    // Utilisation de l'interpolation pour l'URL
+    const response = await apiClient.put<Note>(`/api/v1/notes/${id}`, payload);
+
+    // L'API doit retourner la note mise à jour (avec potentiellement updated_at modifié)
+    // Nous validons aussi la réponse avec NoteSchema pour être sûrs
+    return NoteSchema.parse(response.data);
+  } catch (error) {
+    console.error(`Failed to update note ${id}:`, error);
+    if (axios.isAxiosError(error) && error.response) {
+      if (error.response.status === 404) {
+        throw new Error(`Note with ID ${id} not found.`);
+      }
+      // Gérer d'autres erreurs HTTP spécifiques si nécessaire
+      throw new Error(
+        `Failed to update note: ${error.response.statusText || 'Server error'}`
+      );
+    }
+    // Erreur réseau ou autre
+    throw new Error('Failed to update note. Please check your connection.');
+  }
+};

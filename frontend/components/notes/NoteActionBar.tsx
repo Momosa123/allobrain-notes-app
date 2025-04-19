@@ -1,13 +1,17 @@
 import React from 'react';
-import { TrashIcon, Pencil, GitCompareArrows } from 'lucide-react';
+import { TrashIcon, Pencil, GitCompareArrows, Save } from 'lucide-react';
 
 import { TooltipProvider } from '@/components/ui/tooltip';
 import IconButton from '../ui/IconButton';
+import { cn } from '@/lib/utils';
 
 interface NoteActionBarProps {
   selectedNoteId: number | null;
   onCreateNote: () => void;
   onDeleteNote: (id: number) => void;
+  onSaveChanges: () => void;
+  hasChanges: boolean;
+  isSaving: boolean;
 }
 /*
   NoteActionBar component that displays icons for actions on a note
@@ -17,6 +21,9 @@ export default function NoteActionBar({
   selectedNoteId,
   onCreateNote,
   onDeleteNote,
+  onSaveChanges,
+  hasChanges,
+  isSaving,
 }: NoteActionBarProps) {
   const handleDeleteClick = () => {
     if (selectedNoteId !== null) {
@@ -26,9 +33,34 @@ export default function NoteActionBar({
     }
   };
 
+  let saveTooltip = 'Save Changes';
+  if (!selectedNoteId) {
+    saveTooltip = 'Select a note to save';
+  } else if (!hasChanges) {
+    saveTooltip = 'No changes to save';
+  } else if (isSaving) {
+    saveTooltip = 'Saving...';
+  }
+
+  const isSaveDisabled = !selectedNoteId || !hasChanges || isSaving;
+
   return (
     <TooltipProvider delayDuration={100}>
       <div className="flex h-[57px] items-center justify-end space-x-2 px-4">
+        <IconButton
+          icon={Save}
+          tooltipContent={saveTooltip}
+          srText="Save Changes"
+          onClick={onSaveChanges}
+          disabled={isSaveDisabled}
+          className={cn(
+            'text-green-600 hover:text-green-700',
+            isSaveDisabled && 'disabled:cursor-not-allowed disabled:opacity-50',
+            isSaving && 'animate-pulse'
+          )}
+          iconSize="size-5"
+        />
+
         <IconButton
           icon={Pencil}
           tooltipContent="New Note"
@@ -44,8 +76,12 @@ export default function NoteActionBar({
           }
           srText="Delete Note"
           onClick={handleDeleteClick}
-          disabled={selectedNoteId === null}
-          className="text-red-500 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={selectedNoteId === null || isSaving}
+          className={cn(
+            'text-red-500 hover:text-red-600',
+            (selectedNoteId === null || isSaving) &&
+              'disabled:cursor-not-allowed disabled:opacity-50'
+          )}
           iconSize="size-5"
         />
 
@@ -53,9 +89,8 @@ export default function NoteActionBar({
           icon={GitCompareArrows}
           tooltipContent="View Versions (Coming Soon)"
           srText="View Versions"
-          disabled // Désactivé pour l'instant
-          // onClick={handleShowVersions} // Fonction future
-          iconSize="size-5" // Personnalise la taille si besoin
+          disabled
+          iconSize="size-5"
         />
       </div>
     </TooltipProvider>

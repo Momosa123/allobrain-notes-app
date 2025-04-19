@@ -26,7 +26,7 @@ class NoteUpdate(NoteBase):
 class NoteIndDBBase(NoteBase):
     id: int
     created_at: datetime
-    update_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
     # Pydantic config to read from an ORM
     model_config = ConfigDict(from_attributes=True)
 
