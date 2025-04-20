@@ -24,9 +24,6 @@ export const useRestoreNoteVersionMutation = () => {
       // Invalidate queries to refetch updated data
       queryClient.invalidateQueries({ queryKey: ['notes'] });
       queryClient.invalidateQueries({ queryKey: ['noteVersions', noteId] });
-
-      // Optional: Prefetch or set query data if needed for faster UI update
-      // queryClient.setQueryData(['notes', noteId], data); // Example if fetching single note
     },
     onError: (error) => {
       console.error('Failed to restore note version:', error);
