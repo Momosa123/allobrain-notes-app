@@ -24,9 +24,8 @@ def get_note_versions(
     return (
         db.query(models.NoteVersion)
         .filter(models.NoteVersion.note_id == note_id)
-        .order_by(
-            desc(models.NoteVersion.version_timestamp)
-        )  # Sort from newest to oldest
+        # Order by ID descending for reliable ordering (newest first)
+        .order_by(desc(models.NoteVersion.id))
         .offset(skip)
         .limit(limit)
         .all()
