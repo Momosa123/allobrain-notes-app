@@ -23,8 +23,5 @@ export const useNoteVersionsQuery = (
     // Control whether the query should automatically run
     // Depends on having a valid noteId AND the enabled flag passed in
     enabled: typeof noteId === 'number' && enabled,
-
-    // Optional: Configure staleTime, cacheTime, etc. if needed
-    // staleTime: 300000, // e.g., 5 minutes
   });
 };
