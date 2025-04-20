@@ -46,20 +46,17 @@ def restore_note_version(db: Session, version_id: int) -> Optional[models.Note]:
     Returns:
         The updated Note object if successful, None otherwise.
     """
-    # 1. Get the target version to restore from
+    # Get the note version to restore from
     target_version = (
         db.query(models.NoteVersion).filter(models.NoteVersion.id == version_id).first()
     )
     if not target_version:
         return None  # Version not found
 
-    # 2. Get the original note object
+    #  Get the original note
     original_note = crud.get_note(db=db, note_id=target_version.note_id)
-    if not original_note:
-        # Should not happen if DB integrity is maintained, but check anyway
-        return None  # Original note not found
 
-    # 3. IMPORTANT: Create a new version of the *current* state before overwriting
+    # Create a new version of the *current* state before overwriting
     current_state_version = models.NoteVersion(
         note_id=original_note.id,
         title=original_note.title,
@@ -67,16 +64,15 @@ def restore_note_version(db: Session, version_id: int) -> Optional[models.Note]:
     )
     db.add(current_state_version)
 
-    # 4. Update the original note with the content from the target version
+    # Update the original note with the content from the target version
     original_note.title = target_version.title
     original_note.content = target_version.content
-    # The updated_at field of the Note will be updated automatically if configured
 
-    # 5. Commit changes (saves the new current_state_version
+    # Commit changes (saves the new current_state_version
     # AND the updated original_note)
     db.commit()
 
-    # 6. Refresh the original_note instance to get updated state (like updated_at)
+    # Refresh the original_note instance to get updated state
     db.refresh(original_note)
 
     return original_note
