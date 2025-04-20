@@ -3,12 +3,20 @@ from app.db.base import Base
 from app.db.session import get_db
 from fastapi.testclient import TestClient
 from main import app
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker
 
+
+# --- SQLite Pragma Listener ---
+@event.listens_for(Engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON;")
+    cursor.close()
+
+
 # --- SQLite In-Memory Engine ---
-
-
 @pytest.fixture(scope="session")
 def engine():
     """
@@ -24,6 +32,7 @@ def engine():
     connection.close()
 
 
+# --- Database Session ---
 @pytest.fixture(scope="function")
 def db_session(engine):
     """
