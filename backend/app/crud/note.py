@@ -61,7 +61,7 @@ def update_note(
     db: Session, note_id: int, note_update: schemas.NoteUpdate
 ) -> Optional[models.Note]:
     """
-    Updates a  note.
+    Updates a note and creates a version before saving.
 
     Args:
         db: The database session
@@ -76,13 +76,26 @@ def update_note(
     if not db_note:
         return None
 
-    # Takes the Pydantic schema fields excluding the ones that are  undefined
+    # Capture current state
+    current_title = db_note.title
+    current_content = db_note.content
+
+    # Create NoteVersion instance
+    db_note_version = models.NoteVersion(
+        note_id=db_note.id,
+        title=current_title,
+        content=current_content,
+        # version_timestamp is handled by server_default
+    )
+    # Add the new version to the session
+    db.add(db_note_version)
+
+    # Takes the Pydantic schema fields excluding the ones that are undefined
     update_data = note_update.model_dump(exclude_unset=True)
 
     for key, value in update_data.items():
         setattr(db_note, key, value)
 
-    db.add(db_note)
     db.commit()
     db.refresh(db_note)
     return db_note

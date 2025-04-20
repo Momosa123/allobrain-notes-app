@@ -1,7 +1,5 @@
 from fastapi.testclient import TestClient
 
-# Tests will implicitly use fixtures defined in conftest.py
-
 
 def test_create_note(client: TestClient):
     """Tests successful note creation via POST endpoint."""
@@ -25,6 +23,7 @@ def test_create_note(client: TestClient):
 
 def test_read_notes(client: TestClient):
     """Test reading a list of notes."""
+
     #  Create a note first to ensure there is data
     note_data = {"title": "Note 1", "content": "Content 1"}
     client.post("/api/v1/notes/", json=note_data)
