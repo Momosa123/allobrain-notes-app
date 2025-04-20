@@ -43,15 +43,7 @@ export default function VersionHistoryPanel({
       <SheetContent className="flex w-[320px] flex-col sm:w-[400px]">
         <SheetHeader>
           <SheetTitle>Historique des Versions</SheetTitle>
-          <SheetClose
-            asChild
-            className="ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-4 right-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none"
-          >
-            <button className="p-1">
-              <X className="h-4 w-4" />
-              <span className="sr-only">Close</span>
-            </button>
-          </SheetClose>
+          {/* Optional: <SheetDescription>...</SheetDescription> */}
         </SheetHeader>
 
         <div className="mt-4 flex-grow overflow-y-auto pr-6">
@@ -62,7 +54,7 @@ export default function VersionHistoryPanel({
           )}
           {isError && (
             <div className="p-4 text-center text-red-600 dark:text-red-400">
-              Erreur lors du chargement de l'historique.
+              Erreur lors du chargement de l&apos;historique.
             </div>
           )}
           {!isLoading && !isError && (
