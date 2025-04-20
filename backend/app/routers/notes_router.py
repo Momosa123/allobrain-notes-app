@@ -113,7 +113,7 @@ def restore_note_version_endpoint(
     restored_note = crud.restore_note_version(db=db, version_id=version_id)
 
     if restored_note is None:
-        # This could mean the version_id was invalid, or the original note didn't exist
+        # This could mean the version_id was invalid
         raise HTTPException(
             status_code=404, detail="Version or original note not found"
         )
