@@ -47,7 +47,7 @@ export default function VersionListItem({
       </span>
       <button
         onClick={handleRestoreClick}
-        className="ml-4 rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800"
+        className="ml-4 cursor-pointer rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none dark:bg-blue-900 dark:text-blue-200 dark:hover:bg-blue-800"
         aria-label={`Restaurer la version du ${formattedTimestamp}`}
       >
         Restaurer
