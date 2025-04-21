@@ -8,6 +8,7 @@ import {
   NoteUpdatePayload,
 } from '@/lib/api';
 import { useNoteStore } from '@/store/noteStore';
+import { toast } from 'sonner';
 
 // --- Hook for Creating Notes ---
 export function useCreateNoteMutation() {
@@ -20,10 +21,11 @@ export function useCreateNoteMutation() {
       queryClient.invalidateQueries({ queryKey: ['notes'] });
       setSelectedNoteId(newlyCreatedNote.id);
       setEditorState(newlyCreatedNote.title, newlyCreatedNote.content);
+      toast.success('Note créée avec succès !');
     },
     onError: (error) => {
       console.error('Failed to create note:', error);
-      // TODO: Add user-facing error notification
+      toast.error('Erreur lors de la création de la note.');
     },
   });
 }
@@ -45,13 +47,12 @@ export function useUpdateNoteMutation() {
           ) => (note.id === updatedNote.id ? updatedNote : note)
         );
       });
-      console.log('Note updated successfully!');
-      // Update Zustand state to match saved state
       setEditorState(updatedNote.title, updatedNote.content);
+      toast.success('Note enregistrée avec succès !');
     },
     onError: (error) => {
       console.error('Failed to update note:', error);
-      // TODO: Add user-facing error notification
+      toast.error("Erreur lors de l'enregistrement de la note.");
     },
   });
 }
@@ -68,10 +69,11 @@ export function useDeleteNoteMutation() {
       queryClient.invalidateQueries({ queryKey: ['notes'] });
       setSelectedNoteId(null);
       resetEditorState();
+      toast.success('Note supprimée avec succès !');
     },
     onError: (error) => {
       console.error('Failed to delete note:', error);
-      // TODO: Add user-facing error notification
+      toast.error('Erreur lors de la suppression de la note.');
     },
   });
 }

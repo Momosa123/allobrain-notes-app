@@ -193,3 +193,89 @@ export const updateNote = async ({
     throw new Error('Failed to update note. Please check your connection.');
   }
 };
+
+// --- Versioning API Functions ---
+
+// Interface for NoteVersion (match backend schema)
+export interface NoteVersion {
+  id: number;
+  note_id: number;
+  title: string;
+  content: string;
+  version_timestamp: string;
+}
+
+// GET /api/v1/notes/{note_id}/versions/
+export const getNoteVersions = async (
+  noteId: number
+): Promise<NoteVersion[]> => {
+  try {
+    const response = await apiClient.get(`/api/v1/notes/${noteId}/versions/`);
+    // Add basic validation if needed, e.g., check if response.data is an array
+    if (!Array.isArray(response.data)) {
+      throw new Error('Invalid data structure for versions received from API');
+    }
+    // Assuming backend sends data matching NoteVersion interface
+    return response.data as NoteVersion[];
+  } catch (error) {
+    console.error(`Failed to fetch versions for note ${noteId}:`, error);
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        `Failed to fetch versions: ${error.response?.statusText || error.message} (${error.response?.status ?? 'Network Error'})`
+      );
+    } else if (error instanceof Error) {
+      throw error;
+    } else {
+      throw new Error('An unknown error occurred while fetching versions.');
+    }
+  }
+};
+
+// POST /api/v1/notes/{note_id}/versions/{version_id}/restore/
+// Backend returns the updated Note
+interface RestorePayload {
+  noteId: number | null;
+  versionId: number;
+}
+export const restoreNoteVersion = async ({
+  noteId,
+  versionId,
+}: RestorePayload): Promise<Note> => {
+  if (!noteId) {
+    throw new Error('Cannot restore version without a selected note ID.');
+  }
+  try {
+    const response = await apiClient.post(
+      `/api/v1/notes/${noteId}/versions/${versionId}/restore/`
+    );
+    console.log('Restore response:', response.data);
+    // Validate response using NoteSchema
+    const validationResult = NoteSchema.safeParse(response.data);
+    if (!validationResult.success) {
+      throw new Error(
+        `Invalid data structure received after restoring version: ${validationResult.error.message}`
+      );
+    }
+    return validationResult.data;
+  } catch (error) {
+    console.error(
+      `Failed to restore version ${versionId} for note ${noteId}:`,
+      error
+    );
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 404) {
+        throw new Error(`Version or Note not found.`);
+      }
+      if (error.response?.status === 400) {
+        throw new Error(`Version does not belong to the specified note.`);
+      }
+      throw new Error(
+        `Failed to restore version: ${error.response?.statusText || error.message} (${error.response?.status ?? 'Network Error'})`
+      );
+    } else if (error instanceof Error) {
+      throw error;
+    } else {
+      throw new Error('An unknown error occurred while restoring version.');
+    }
+  }
+};

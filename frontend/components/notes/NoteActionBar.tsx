@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrashIcon, Pencil, GitCompareArrows, Save } from 'lucide-react';
+import { Pencil, GitCompareArrows, Save, Trash2, History } from 'lucide-react';
 
 import { TooltipProvider } from '@/components/ui/tooltip';
 import IconButton from '../ui/IconButton';
@@ -10,6 +10,7 @@ interface NoteActionBarProps {
   onCreateNote: () => void;
   onDeleteNote: (id: number) => void;
   onSaveChanges: () => void;
+  onShowHistory?: () => void;
   hasChanges: boolean;
   isSaving: boolean;
 }
@@ -22,6 +23,7 @@ export default function NoteActionBar({
   onCreateNote,
   onDeleteNote,
   onSaveChanges,
+  onShowHistory,
   hasChanges,
   isSaving,
 }: NoteActionBarProps) {
@@ -46,7 +48,27 @@ export default function NoteActionBar({
 
   return (
     <TooltipProvider delayDuration={100}>
-      <div className="flex h-[57px] items-center justify-end space-x-2 px-4">
+      <div className="flex h-[57px] items-center justify-end space-x-2 bg-white px-6 dark:border-gray-800 dark:bg-gray-950">
+        <IconButton
+          icon={Pencil}
+          tooltipContent="New Note"
+          srText="New Note"
+          onClick={onCreateNote}
+          iconSize="size-5"
+        />
+
+        <IconButton
+          icon={History}
+          tooltipContent="View History"
+          srText="View History"
+          onClick={onShowHistory}
+          disabled={!selectedNoteId}
+          className={cn(
+            !selectedNoteId && 'disabled:cursor-not-allowed disabled:opacity-50'
+          )}
+          iconSize="size-5"
+        />
+
         <IconButton
           icon={Save}
           tooltipContent={saveTooltip}
@@ -62,15 +84,7 @@ export default function NoteActionBar({
         />
 
         <IconButton
-          icon={Pencil}
-          tooltipContent="New Note"
-          srText="New Note"
-          onClick={onCreateNote}
-          iconSize="size-5"
-        />
-
-        <IconButton
-          icon={TrashIcon}
+          icon={Trash2}
           tooltipContent={
             selectedNoteId !== null ? 'Delete Note' : 'Select a note to delete'
           }

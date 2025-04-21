@@ -1,7 +1,7 @@
 // Import necessary dependencies for Next.js metadata and fonts
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-
+import { Toaster } from '@/components/ui/sonner';
 import './globals.css';
 
 import QueryProvider from '@/components/providers/QueryProvider';
@@ -38,7 +38,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {/* Wrap all content with QueryProvider for data fetching capabilities */}
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+          <Toaster />
+          {children}
+        </QueryProvider>
       </body>
     </html>
   );
