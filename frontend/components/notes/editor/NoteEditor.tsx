@@ -24,7 +24,7 @@ export default function NoteEditor({
   onContentChange,
 }: NoteEditorProps) {
   return (
-    <div className="flex h-full flex-col space-y-4 p-6">
+    <div className="mt-24 ml-36 flex h-full flex-col space-y-4 p-6">
       {/* Title Input */}
       <Input
         placeholder="Untitled"
