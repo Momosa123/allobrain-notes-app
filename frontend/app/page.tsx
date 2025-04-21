@@ -167,9 +167,9 @@ export default function Home() {
       );
     },
     [selectedNoteId, restoreMutation, closeHistoryPanel]
-  ); // Add dependencies
+  );
 
-  // --- Loading/Error/Render Logic (Keep existing) ---
+  // --- Loading/Error/Render Logic  ---
   if (isLoading) {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
