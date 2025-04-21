@@ -1,13 +1,6 @@
 import React from 'react';
 import { GitCompareArrows } from 'lucide-react'; // Import compare icon
-
-interface NoteVersion {
-  id: number;
-  note_id: number;
-  title: string;
-  content: string;
-  version_timestamp: string;
-}
+import { NoteVersion } from '@/lib/types/noteTypes';
 
 interface VersionListItemProps {
   version: NoteVersion;
@@ -15,7 +8,13 @@ interface VersionListItemProps {
   onPreview?: (version: NoteVersion) => void;
   onCompare?: (version: NoteVersion) => void; // Add onCompare prop
 }
-
+/**
+ * VersionListItem component that displays a version in the history list
+ * @param {NoteVersion} version - The version to display
+ * @param {function} onRestore - The function to call when the restore button is clicked
+ * @param {function} onPreview - The function to call when the preview button is clicked
+ * @param {function} onCompare - The function to call when the compare button is clicked
+ */
 export default function VersionListItem({
   version,
   onRestore,
