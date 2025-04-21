@@ -1,14 +1,6 @@
 import React from 'react';
 import VersionListItem from './VersionListItem'; // Import the item component
-
-// Assuming NoteVersion interface is defined elsewhere or defined here
-interface NoteVersion {
-  id: number;
-  note_id: number;
-  title: string;
-  content: string;
-  version_timestamp: string; // ISO string format expected
-}
+import { NoteVersion } from '@/lib/api';
 
 interface VersionHistoryListProps {
   versions: NoteVersion[]; // Array of versions

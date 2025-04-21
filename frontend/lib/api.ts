@@ -233,7 +233,7 @@ export const getNoteVersions = async (
 
 // POST /api/v1/notes/{note_id}/versions/{version_id}/restore/
 // Backend returns the updated Note
-interface RestorePayload {
+export interface RestorePayload {
   noteId: number | null;
   versionId: number;
 }

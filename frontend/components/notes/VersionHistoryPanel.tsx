@@ -4,20 +4,10 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetClose,
 } from '@/components/ui/sheet';
-import { X } from 'lucide-react'; // Icon for close button
 import VersionHistoryList from './VersionHistoryList';
-import LoadingSpinner from '@/components/ui/LoadingSpinner'; // Assuming LoadingSpinner exists
-
-// Assuming NoteVersion interface is defined elsewhere or defined here
-interface NoteVersion {
-  id: number;
-  note_id: number;
-  title: string;
-  content: string;
-  version_timestamp: string; // ISO string format expected
-}
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { NoteVersion } from '@/lib/api';
 
 interface VersionHistoryPanelProps {
   isOpen: boolean; // Controls visibility
