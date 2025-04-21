@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { NoteVersion } from '@/lib/api';
+import { NoteVersion } from '@/lib/types/noteTypes';
 import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer';
 
 interface DiffDialogProps {
@@ -15,7 +15,14 @@ interface DiffDialogProps {
   currentTitle: string;
   currentContent: string;
 }
-
+/**
+ * DiffDialog component that displays a diff between two versions of a note
+ * @param {boolean} isOpen - Whether the dialog is open
+ * @param {function} onOpenChange - The function to call when the dialog is opened or closed
+ * @param {NoteVersion | null} oldVersion - The old version of the note
+ * @param {string} currentTitle - The title of the current version of the note
+ * @param {string} currentContent - The content of the current version of the note
+ */
 export default function DiffDialog({
   isOpen,
   onOpenChange,
@@ -33,7 +40,7 @@ export default function DiffDialog({
         <DialogHeader>
           <DialogTitle>Comparaison des versions</DialogTitle>
         </DialogHeader>
-        <div className="min-h-[70vh] min-w-[40vw]">
+        <div className="min-h-[70vh] min-w-[40vw] overflow-y-auto">
           <ReactDiffViewer
             oldValue={oldVersion.content || ''}
             newValue={currentContent || ''}
