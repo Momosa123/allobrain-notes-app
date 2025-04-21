@@ -36,7 +36,7 @@ export default function NoteActionBar({
 }: NoteActionBarProps) {
   const handleDeleteClick = () => {
     if (selectedNoteId !== null) {
-      if (window.confirm('Are you sure you want to delete this note?')) {
+      if (window.confirm('Vous êtes sûr de vouloir supprimer cette note?')) {
         onDeleteNote(selectedNoteId);
       }
     }
