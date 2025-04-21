@@ -1,5 +1,5 @@
 import React from 'react';
-import { Note } from '@/lib/api';
+import { Note } from '@/lib/types/noteTypes';
 
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -11,8 +11,12 @@ interface NoteSidebarProps {
   onSelectNote: (id: number) => void;
   isLoading: boolean;
 }
-/*
-  NoteSidebar component that displays a list of notes
+/**
+ * NoteSidebar component that displays a list of notes
+ * @param {Note[] | undefined} notes - The list of notes to display
+ * @param {number | null} selectedNoteId - The id of the selected note
+ * @param {function} onSelectNote - The function to call when a note is selected
+ * @param {boolean} isLoading - Whether the notes are loading
  */
 export default function NoteSidebar({
   notes,
