@@ -47,7 +47,7 @@ export default function DiffDialog({
         <div className="max-h-[75vh] min-h-[70vh] overflow-y-auto pr-2">
           <div className="mb-4">
             <h4 className="text-muted-foreground mb-2 text-sm font-semibold">
-              Changement de Titre
+              {`Version du ${new Date(oldVersion.version_timestamp).toLocaleDateString()}`}
             </h4>
             <div className="border dark:border-gray-700">
               <ReactDiffViewer
@@ -56,14 +56,12 @@ export default function DiffDialog({
                 splitView={false}
                 compareMethod={DiffMethod.WORDS}
                 hideLineNumbers={true}
+                leftTitle="Changement de Titre"
               />
             </div>
           </div>
 
           <div>
-            <h4 className="text-muted-foreground mb-2 text-sm font-semibold">
-              Changement de Contenu
-            </h4>
             <div className="border dark:border-gray-700">
               <ReactDiffViewer
                 oldValue={oldVersion.content || ''}
@@ -71,8 +69,7 @@ export default function DiffDialog({
                 splitView={false}
                 compareMethod={DiffMethod.WORDS}
                 hideLineNumbers={false}
-                leftTitle={`Version du ${new Date(oldVersion.version_timestamp).toLocaleDateString()}`}
-                rightTitle="Version Actuelle"
+                leftTitle="Changement de Contenu"
               />
             </div>
           </div>
