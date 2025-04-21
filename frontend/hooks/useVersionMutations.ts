@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { restoreNoteVersion, Note } from '../lib/api'; // Assuming Note type is exported from api
 import { useNoteStore } from '@/store/noteStore'; // Import Zustand store hook
+import { toast } from 'sonner'; // Import toast
 
 interface RestorePayload {
   noteId: number;
@@ -24,10 +25,14 @@ export const useRestoreNoteVersionMutation = () => {
       // Invalidate queries to refetch updated data
       queryClient.invalidateQueries({ queryKey: ['notes'] });
       queryClient.invalidateQueries({ queryKey: ['noteVersions', noteId] });
+
+      // Show success toast
+      toast.success('Version restaurée avec succès !');
     },
     onError: (error) => {
       console.error('Failed to restore note version:', error);
-      // Consider adding user feedback here (e.g., toast notification)
+      // Show error toast
+      toast.error('Erreur lors de la restauration de la version.');
     },
   });
 };

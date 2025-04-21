@@ -12,6 +12,7 @@ import {
 } from '@/hooks/useNoteMutations';
 import { useRestoreNoteVersionMutation } from '@/hooks/useVersionMutations';
 import { useNoteVersionsQuery } from '@/hooks/useNoteVersionsQuery';
+import { toast } from 'sonner';
 import VersionHistoryPanel from '@/components/notes/VersionHistoryPanel';
 
 import NoteSidebar from '@/components/notes/NoteSidebar';
@@ -150,7 +151,7 @@ export default function Home() {
     (versionId: number) => {
       if (!selectedNoteId) {
         console.error('Cannot restore version, no note selected.');
-        alert('Please select a note first.');
+        toast.error('Veuillez sélectionner une note avant de restaurer.');
         return;
       }
 
