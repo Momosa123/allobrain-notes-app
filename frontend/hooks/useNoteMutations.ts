@@ -1,16 +1,18 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createNote, updateNote, deleteNote } from '@/lib/api';
 import {
-  createNote,
-  updateNote,
-  deleteNote,
   Note,
   NoteCreatePayload,
   NoteUpdatePayload,
-} from '@/lib/api';
+} from '@/lib/types/noteTypes';
 import { useNoteStore } from '@/store/noteStore';
 import { toast } from 'sonner';
 
-// --- Hook for Creating Notes ---
+/**
+ * Custom hook to create a new note using React Query.
+ * Encapsulates the mutation function and success/error handlers.
+ * @returns The result object from useMutation (data, isPending, isError, error, etc.)
+ */
 export function useCreateNoteMutation() {
   const queryClient = useQueryClient();
   const { setSelectedNoteId, setEditorState } = useNoteStore();
@@ -63,7 +65,6 @@ export function useDeleteNoteMutation() {
   const { setSelectedNoteId, resetEditorState } = useNoteStore();
 
   return useMutation<void, Error, number>({
-    // Types: Response (void), Error, Payload (id)
     mutationFn: deleteNote,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notes'] });
