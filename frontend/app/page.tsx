@@ -1,308 +1,189 @@
 'use client';
 
-import {
-  Note,
-  NoteCreatePayload,
-  NoteUpdatePayload,
-  NoteVersion,
-} from '@/lib/api';
-import { useEffect, useState, useCallback } from 'react';
-import { useNoteStore } from '@/store/noteStore';
-// Import custom hooks
-import { useNotesQuery } from '@/hooks/useNotesQuery';
-import {
-  useCreateNoteMutation,
-  useUpdateNoteMutation,
-  useDeleteNoteMutation,
-} from '@/hooks/useNoteMutations';
-import { useRestoreNoteVersionMutation } from '@/hooks/useVersionMutations';
-import { useNoteVersionsQuery } from '@/hooks/useNoteVersionsQuery';
-import { toast } from 'sonner';
+import { NoteVersion } from '@/lib/types/noteTypes';
+import { useCallback } from 'react';
+import { useHistoryPanel } from '@/hooks/useHistoryPanel';
+import { usePreviewDialog } from '@/hooks/usePreviewDialog';
+import { useDiffDialog } from '@/hooks/useDiffDialog';
+import { useNoteManager } from '@/hooks/useNoteManager';
 import VersionHistoryPanel from '@/components/notes/VersionHistoryPanel';
 import PreviewDialog from '@/components/notes/PreviewDialog';
 import DiffDialog from '@/components/notes/DiffDialog';
-
 import NoteSidebar from '@/components/notes/NoteSidebar';
-import NoteEditor from '@/components/notes/NoteEditor';
 import NoteActionBar from '@/components/notes/NoteActionBar';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import NoteLayout from '@/components/layout/NoteLayout';
+import EditorDisplay from '@/components/notes/EditorDisplay';
+import { useNoteVersionsQuery } from '@/hooks/useNoteVersionsQuery';
+import { useUnsavedChangesGuard } from '@/hooks/useUnsavedChangesGuard';
+import QueryBoundary from '@/components/common/QueryBoundary';
 
 /*
   Home component that displays a list of notes
  */
 export default function Home() {
-  // Get state and actions from Zustand store
+  // --- Main Logic Hook ---
   const {
+    notes,
+    isLoading,
+    isError,
+    error,
+    selectedNote,
     selectedNoteId,
-    editedTitle,
-    editedContent,
-    setSelectedNoteId,
-    setEditedTitle,
-    setEditedContent,
-    setEditorState,
-    resetEditorState,
-  } = useNoteStore();
+    hasChanges,
+    isMutating,
+    title: editedTitle,
+    content: editedContent,
+    selectNote,
+    createNote,
+    saveNote,
+    deleteNote,
+    restoreNoteVersion,
+    onTitleChange,
+    onContentChange,
+  } = useNoteManager();
 
-  // --- Local UI State for Panel ---
-  const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(false);
+  // --- UI Hooks ---
+  const historyPanel = useHistoryPanel();
+  const previewDialog = usePreviewDialog();
+  const diffDialog = useDiffDialog();
 
-  // --- Local UI State for Preview Modal ---
-  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
-  const [versionToPreview, setVersionToPreview] = useState<NoteVersion | null>(
-    null
-  );
+  // --- Guard Hook ---
+  const guard = useUnsavedChangesGuard({ hasChanges, saveAction: saveNote });
 
-  // --- Local UI State for Diff Modal ---
-  const [isDiffModalOpen, setIsDiffModalOpen] = useState(false);
-  const [versionToCompare, setVersionToCompare] = useState<NoteVersion | null>(
-    null
-  );
-  const [currentTitleForDiff, setCurrentTitleForDiff] = useState<string>('');
-  const [currentContentForDiff, setCurrentContentForDiff] =
-    useState<string>('');
-
-  const { data: notes, isLoading, isError, error } = useNotesQuery();
-  const createMutation = useCreateNoteMutation();
-  const updateMutation = useUpdateNoteMutation();
-  const deleteMutation = useDeleteNoteMutation();
-  const restoreMutation = useRestoreNoteVersionMutation();
-
-  // --- Query for Note Versions (Using Custom Hook) ---
+  // --- Query for Note Versions  ---
   const {
-    // Rename destructured variables for clarity
-    data: versionsData, // Array of NoteVersion
+    data: versionsData,
     isLoading: isVersionsLoading,
     isError: isVersionsError,
-  } = useNoteVersionsQuery(selectedNoteId, isHistoryPanelOpen);
+  } = useNoteVersionsQuery(selectedNoteId, historyPanel.isOpen);
 
-  // Find selected note, explicitly typing the callback parameter
-  const selectedNote = notes?.find((note: Note) => note.id === selectedNoteId);
+  // --- Handlers ---
+  const handleSelectNote = useCallback(
+    (id: number) => {
+      if (selectedNoteId === id) return;
 
-  // Effect to update the Zustand editor state when the selected note changes
-  useEffect(() => {
-    if (selectedNote) {
-      setEditorState(selectedNote.title, selectedNote.content);
-    } else {
-      resetEditorState();
-    }
-  }, [selectedNote, setEditorState, resetEditorState]);
+      // Define the action to take after potential save/confirmation
+      const proceedAction = () => {
+        selectNote(id); // Select the new note
+        // Close all panels/dialogs
+        historyPanel.close();
+        previewDialog.close();
+        diffDialog.close();
+      };
 
-  // Check for changes by comparing Zustand state with React Query data
-  const hasChanges =
-    selectedNote !== undefined &&
-    (editedTitle !== selectedNote.title ||
-      editedContent !== selectedNote.content);
+      // Use the guard hook
+      guard.confirmAndProceed(proceedAction);
+    },
+    [
+      selectedNoteId, // selectedNoteId from useNoteManager
+      guard, // The guard hook instance
+      selectNote, // selectNote from useNoteManager
+      historyPanel,
+      previewDialog,
+      diffDialog,
+    ]
+  );
 
-  // --- Handlers (Mostly unchanged, but now call custom hook mutations) ---
-  const handleSelectNote = async (id: number) => {
-    if (selectedNoteId === id) return;
-
-    if (hasChanges && selectedNoteId !== null) {
-      if (
-        window.confirm(
-          'You have unsaved changes. Save before switching?\n(Cancel to discard changes)'
-        )
-      ) {
-        try {
-          const payload: NoteUpdatePayload = {
-            title: editedTitle,
-            content: editedContent,
-          };
-          // Use the custom hook's mutateAsync
-          await updateMutation.mutateAsync({ id: selectedNoteId, payload });
-          setSelectedNoteId(id);
-          setIsHistoryPanelOpen(false);
-        } catch (error) {
-          console.error('Failed to save changes before switching:', error);
-          alert('Failed to save changes. Please try again.');
-        }
-      } else {
-        setSelectedNoteId(id);
-        setIsHistoryPanelOpen(false);
-      }
-    } else {
-      setSelectedNoteId(id);
-      setIsHistoryPanelOpen(false);
-    }
-  };
-
-  const handleCreateNote = () => {
-    const defaultNoteData: NoteCreatePayload = {
-      title: 'Untitled', // Default title set here
-      content: '',
-    };
-    // Use the custom hook's mutate
-    createMutation.mutate(defaultNoteData);
-  };
-
-  const handleDeleteNote = (id: number) => {
-    // Use the custom hook's mutate
-    deleteMutation.mutate(id);
-  };
-
-  const handleTitleChange = (newTitle: string) => {
-    setEditedTitle(newTitle);
-  };
-
-  const handleContentChange = (newContent: string) => {
-    setEditedContent(newContent);
-  };
-
-  const handleSaveChanges = () => {
-    if (!selectedNoteId || !hasChanges) return;
-    const payload: NoteUpdatePayload = {
-      title: editedTitle,
-      content: editedContent,
-    };
-    // Use the custom hook's mutate
-    updateMutation.mutate({ id: selectedNoteId, payload });
-  };
-
-  // --- Panel Handlers  ---
-  const openHistoryPanel = useCallback(() => {
-    if (selectedNoteId) {
-      setIsHistoryPanelOpen(true);
-    }
-  }, [selectedNoteId]);
-
-  const closeHistoryPanel = useCallback(() => {
-    setIsHistoryPanelOpen(false);
-  }, []);
-
-  // --- Placeholder Restore Handler  ---
   const handleRestoreVersion = useCallback(
     (versionId: number) => {
-      if (!selectedNoteId) {
-        console.error('Cannot restore version, no note selected.');
-        toast.error('Veuillez sélectionner une note avant de restaurer.');
-        return;
-      }
+      // Call the action from useNoteManager
+      restoreNoteVersion(versionId);
 
-      // Call the mutation
-      restoreMutation.mutate(
-        { noteId: selectedNoteId, versionId },
-        {
-          onSuccess: () => {
-            // Close the panel on successful restoration
-            closeHistoryPanel();
-          },
-        }
-      );
+      // Close UI elements immediately after triggering the action
+      // (The mutation hook itself handles success/error toasts)
+      previewDialog.close();
+      diffDialog.close();
+      historyPanel.close(); // Close history panel after initiating restore
     },
-    [selectedNoteId, restoreMutation, closeHistoryPanel]
+    [restoreNoteVersion, historyPanel, previewDialog, diffDialog] // Dependencies updated
   );
 
-  // --- Preview Handler ---
-  const handlePreviewVersion = useCallback((version: NoteVersion) => {
-    setVersionToPreview(version);
-    setIsPreviewModalOpen(true);
-  }, []);
+  const handlePreviewVersion = previewDialog.open;
 
-  // --- Compare Handler ---
   const handleCompareVersion = useCallback(
     (versionToDiff: NoteVersion) => {
-      // Capture current editor state from Zustand
       const currentTitle = editedTitle;
       const currentContentValue = editedContent;
-
-      setVersionToCompare(versionToDiff);
-      setCurrentTitleForDiff(currentTitle);
-      setCurrentContentForDiff(currentContentValue);
-      setIsDiffModalOpen(true);
+      previewDialog.close();
+      diffDialog.open({
+        oldVersion: versionToDiff,
+        currentTitle: currentTitle,
+        currentContent: currentContentValue,
+      });
     },
-    [editedTitle, editedContent]
+    [editedTitle, editedContent, previewDialog, diffDialog]
   );
 
-  // --- Loading/Error/Render Logic  ---
-  if (isLoading) {
-    return (
-      <div className="flex h-screen w-screen items-center justify-center">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
-
-  // Show error message if fetch fails
-  if (isError)
-    return <div>Error fetching notes: {error?.message || 'Unknown error'}</div>;
-
-  // --- Mutation State ---
-  const isMutating =
-    createMutation.isPending ||
-    deleteMutation.isPending ||
-    updateMutation.isPending ||
-    restoreMutation.isPending; // Include restore mutation state
-
   return (
-    <main className="flex h-screen overflow-hidden">
-      {/* Sidebar */}
-      <div className="flex w-1/5 flex-col border-r border-gray-200">
-        <NoteSidebar
-          notes={notes ?? []}
-          selectedNoteId={selectedNoteId}
-          onSelectNote={handleSelectNote}
-          isLoading={isLoading}
-        />
-      </div>
-      {/* Editor */}
-      <div className="flex flex-1 flex-col">
-        <NoteActionBar
-          selectedNoteId={selectedNoteId}
-          onCreateNote={handleCreateNote}
-          onDeleteNote={handleDeleteNote}
-          onSaveChanges={handleSaveChanges}
-          hasChanges={hasChanges}
-          isSaving={updateMutation.isPending}
-          onShowHistory={openHistoryPanel}
-        />
-        <div className="flex-1 overflow-y-auto p-6">
-          {isLoading || isMutating ? (
-            <div className="flex h-full items-center justify-center">
-              <LoadingSpinner size="md" />
-            </div>
-          ) : selectedNoteId !== null ? (
-            <NoteEditor
-              key={selectedNoteId}
-              title={editedTitle}
-              content={editedContent}
-              onTitleChange={handleTitleChange}
-              onContentChange={handleContentChange}
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center text-gray-500">
-              Select a note to view or edit, or create a new one.
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Render the Version History Panel */}
-      <VersionHistoryPanel
-        isOpen={isHistoryPanelOpen}
-        onClose={closeHistoryPanel}
-        versions={versionsData}
-        isLoading={isVersionsLoading}
-        isError={isVersionsError}
-        onRestore={handleRestoreVersion}
-        onPreview={handlePreviewVersion}
-        onCompare={handleCompareVersion}
+    <QueryBoundary
+      isLoading={isLoading && !notes}
+      isError={isError}
+      error={error}
+    >
+      <NoteLayout
+        sidebar={
+          <NoteSidebar
+            notes={notes}
+            selectedNoteId={selectedNoteId}
+            onSelectNote={handleSelectNote}
+            isLoading={isLoading}
+          />
+        }
+        actionBar={
+          <NoteActionBar
+            selectedNoteId={selectedNoteId}
+            onCreateNote={createNote}
+            onDeleteNote={deleteNote}
+            onSaveChanges={saveNote}
+            hasChanges={hasChanges}
+            isSaving={isMutating}
+            onShowHistory={() => {
+              if (selectedNoteId) {
+                historyPanel.open();
+              }
+            }}
+          />
+        }
+        editor={
+          <EditorDisplay
+            isLoading={false}
+            isMutating={isMutating}
+            note={selectedNote}
+            editedTitle={editedTitle}
+            editedContent={editedContent}
+            onTitleChange={onTitleChange}
+            onContentChange={onContentChange}
+          />
+        }
+        historyPanel={
+          <VersionHistoryPanel
+            isOpen={historyPanel.isOpen}
+            onClose={historyPanel.close}
+            versions={versionsData}
+            isLoading={isVersionsLoading}
+            isError={isVersionsError}
+            onRestore={handleRestoreVersion}
+            onPreview={handlePreviewVersion}
+            onCompare={handleCompareVersion}
+          />
+        }
+        previewDialog={
+          <PreviewDialog
+            isOpen={previewDialog.isOpen}
+            onOpenChange={previewDialog.onOpenChange}
+            version={previewDialog.version}
+          />
+        }
+        diffDialog={
+          <DiffDialog
+            isOpen={diffDialog.isOpen}
+            onOpenChange={diffDialog.onOpenChange}
+            oldVersion={diffDialog.oldVersion}
+            currentTitle={diffDialog.currentTitle}
+            currentContent={diffDialog.currentContent}
+          />
+        }
       />
-
-      {/* Render the Preview Dialog */}
-      <PreviewDialog
-        isOpen={isPreviewModalOpen}
-        onOpenChange={setIsPreviewModalOpen}
-        version={versionToPreview}
-      />
-
-      {/* Render the Diff Dialog */}
-      <DiffDialog
-        isOpen={isDiffModalOpen}
-        onOpenChange={setIsDiffModalOpen}
-        oldVersion={versionToCompare}
-        currentTitle={currentTitleForDiff}
-        currentContent={currentContentForDiff}
-      />
-    </main>
+    </QueryBoundary>
   );
 }
