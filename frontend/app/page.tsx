@@ -1,16 +1,7 @@
 'use client';
-// Remove imports no longer directly used in this component
-// import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import {
-  // fetchNotes, // Used in useNotesQuery
-  Note, // Still needed for typing
-  // createNote, // Used in useCreateNoteMutation
-  NoteCreatePayload, // Still needed for handler
-  // deleteNote, // Used in useDeleteNoteMutation
-  // updateNote, // Used in useUpdateNoteMutation
-  NoteUpdatePayload, // Still needed for handler
-} from '@/lib/api';
-import { useEffect } from 'react';
+
+import { Note, NoteCreatePayload, NoteUpdatePayload } from '@/lib/api';
+import { useEffect, useState, useCallback } from 'react';
 import { useNoteStore } from '@/store/noteStore';
 // Import custom hooks
 import { useNotesQuery } from '@/hooks/useNotesQuery';
@@ -19,6 +10,9 @@ import {
   useUpdateNoteMutation,
   useDeleteNoteMutation,
 } from '@/hooks/useNoteMutations';
+import { useRestoreNoteVersionMutation } from '@/hooks/useVersionMutations';
+import { useNoteVersionsQuery } from '@/hooks/useNoteVersionsQuery';
+import VersionHistoryPanel from '@/components/notes/VersionHistoryPanel';
 
 import NoteSidebar from '@/components/notes/NoteSidebar';
 import NoteEditor from '@/components/notes/NoteEditor';
@@ -28,11 +22,6 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
   Home component that displays a list of notes
  */
 export default function Home() {
-  // Remove useState for Zustand-managed state
-  // const [selectedNoteId, setSelectedNoteId] = useState<number | null>(null);
-  // const [editedTitle, setEditedTitle] = useState('');
-  // const [editedContent, setEditedContent] = useState('');
-
   // Get state and actions from Zustand store
   const {
     selectedNoteId,
@@ -45,17 +34,23 @@ export default function Home() {
     resetEditorState,
   } = useNoteStore();
 
-  // --- React Query Hook Calls ---
-  // No need for queryClient here anymore, it's used inside the custom hooks
-  // const queryClient = useQueryClient();
+  // --- Local UI State for Panel ---
+  const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(false);
 
   const { data: notes, isLoading, isError, error } = useNotesQuery();
   const createMutation = useCreateNoteMutation();
   const updateMutation = useUpdateNoteMutation();
   const deleteMutation = useDeleteNoteMutation();
-  // --- End React Query Hook Calls ---
+  const restoreMutation = useRestoreNoteVersionMutation(); // Instantiate the new hook
 
-  // --- Sélection et État d'édition ---
+  // --- Query for Note Versions (Using Custom Hook) ---
+  const {
+    // Rename destructured variables for clarity
+    data: versionsData, // Array of NoteVersion
+    isLoading: isVersionsLoading,
+    isError: isVersionsError,
+  } = useNoteVersionsQuery(selectedNoteId, isHistoryPanelOpen);
+
   // Find selected note, explicitly typing the callback parameter
   const selectedNote = notes?.find((note: Note) => note.id === selectedNoteId);
 
@@ -92,15 +87,18 @@ export default function Home() {
           // Use the custom hook's mutateAsync
           await updateMutation.mutateAsync({ id: selectedNoteId, payload });
           setSelectedNoteId(id);
+          setIsHistoryPanelOpen(false);
         } catch (error) {
           console.error('Failed to save changes before switching:', error);
           alert('Failed to save changes. Please try again.');
         }
       } else {
         setSelectedNoteId(id);
+        setIsHistoryPanelOpen(false);
       }
     } else {
       setSelectedNoteId(id);
+      setIsHistoryPanelOpen(false);
     }
   };
 
@@ -135,9 +133,42 @@ export default function Home() {
     // Use the custom hook's mutate
     updateMutation.mutate({ id: selectedNoteId, payload });
   };
-  // --- Fin Handlers ---
 
-  // Show loading state while data is being fetched
+  // --- Panel Handlers  ---
+  const openHistoryPanel = useCallback(() => {
+    if (selectedNoteId) {
+      setIsHistoryPanelOpen(true);
+    }
+  }, [selectedNoteId]);
+
+  const closeHistoryPanel = useCallback(() => {
+    setIsHistoryPanelOpen(false);
+  }, []);
+
+  // --- Placeholder Restore Handler  ---
+  const handleRestoreVersion = useCallback(
+    (versionId: number) => {
+      if (!selectedNoteId) {
+        console.error('Cannot restore version, no note selected.');
+        alert('Please select a note first.');
+        return;
+      }
+
+      // Call the mutation
+      restoreMutation.mutate(
+        { noteId: selectedNoteId, versionId },
+        {
+          onSuccess: () => {
+            // Close the panel on successful restoration
+            closeHistoryPanel();
+          },
+        }
+      );
+    },
+    [selectedNoteId, restoreMutation, closeHistoryPanel]
+  ); // Add dependencies
+
+  // --- Loading/Error/Render Logic (Keep existing) ---
   if (isLoading) {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
@@ -154,7 +185,8 @@ export default function Home() {
   const isMutating =
     createMutation.isPending ||
     deleteMutation.isPending ||
-    updateMutation.isPending;
+    updateMutation.isPending ||
+    restoreMutation.isPending; // Include restore mutation state
 
   return (
     <main className="flex h-screen overflow-hidden">
@@ -175,7 +207,8 @@ export default function Home() {
           onDeleteNote={handleDeleteNote}
           onSaveChanges={handleSaveChanges}
           hasChanges={hasChanges}
-          isSaving={updateMutation.isPending} // isSaving still uses the update mutation's pending state
+          isSaving={updateMutation.isPending}
+          onShowHistory={openHistoryPanel}
         />
         <div className="flex-1 overflow-y-auto p-6">
           {isLoading || isMutating ? (
@@ -197,6 +230,16 @@ export default function Home() {
           )}
         </div>
       </div>
+
+      {/* Render the Version History Panel */}
+      <VersionHistoryPanel
+        isOpen={isHistoryPanelOpen}
+        onClose={closeHistoryPanel}
+        versions={versionsData}
+        isLoading={isVersionsLoading}
+        isError={isVersionsError}
+        onRestore={handleRestoreVersion}
+      />
     </main>
   );
 }
