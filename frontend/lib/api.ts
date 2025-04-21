@@ -1,40 +1,17 @@
 import { z } from 'zod';
 import axios from 'axios'; // Import axios
-
-// Define the schema for a single Note object
-// This ensures type safety and runtime validation of note data
-const NoteSchema = z.object({
-  id: z.number(),
-  title: z.string(),
-  content: z.string(),
-  created_at: z.string(),
-  updated_at: z.string().optional().nullable(), // Optional since it may not exist for new notes
-});
-
-// Schema for an array of notes returned from the API
-const NotesListSchema = z.array(NoteSchema);
-
-// Export the Note type for use in other components
-export type Note = z.infer<typeof NoteSchema>;
-
-// Schema for the data to create a note
-const _NoteCreateSchema = z.object({
-  title: z.string().min(1, { message: 'Title is required' }),
-  content: z.string(),
-});
-
-// Type inferred for the creation of a note
-export type NoteCreatePayload = z.infer<typeof _NoteCreateSchema>;
-
-// Schema for the data to update a note
-// We expect a title (string) and a content (string).
-export const NoteUpdateSchema = z.object({
-  title: z.string().min(1, 'Title cannot be empty'),
-  content: z.string(), // Can be empty
-});
-
-// Type inferred for the update of a note
-export type NoteUpdatePayload = z.infer<typeof NoteUpdateSchema>;
+// Import types and schemas from the new file
+import {
+  Note,
+  NotesListSchema,
+  NoteSchema,
+  NoteCreatePayload,
+  // _NoteCreateSchema, // No need to import if internal
+  NoteUpdatePayload,
+  NoteUpdateSchema,
+  NoteVersion,
+  RestorePayload,
+} from './types/noteTypes';
 
 // Create an axios instance with the base URL
 const apiClient = axios.create({
@@ -161,22 +138,20 @@ export const updateNote = async ({
   id: number;
   payload: NoteUpdatePayload;
 }): Promise<Note> => {
-  // Validation optionnelle côté client avant envoi (bonne pratique)
+  // Optional client-side validation before sending (good practice)
   try {
-    NoteUpdateSchema.parse(payload); // Vérifie que le payload a la bonne structure
+    NoteUpdateSchema.parse(payload); // Check that the payload has the correct structure
   } catch (error) {
     console.error('Invalid update payload:', error);
-    // On pourrait rejeter la promesse ou lancer une erreur plus spécifique ici
-    // Pour l'instant, on laisse l'API backend valider principalement.
-    // throw new Error("Invalid data provided for update.");
+    // We throw an error to stop the update
+    throw new Error('Invalid data provided for update.');
   }
 
   try {
-    // Utilisation de l'interpolation pour l'URL
     const response = await apiClient.put<Note>(`/api/v1/notes/${id}`, payload);
 
-    // L'API doit retourner la note mise à jour (avec potentiellement updated_at modifié)
-    // Nous validons aussi la réponse avec NoteSchema pour être sûrs
+    // The API must return the updated note (with potentially updated_at modified)
+    // We also validate the response with NoteSchema to be sure
     return NoteSchema.parse(response.data);
   } catch (error) {
     console.error(`Failed to update note ${id}:`, error);
@@ -184,28 +159,24 @@ export const updateNote = async ({
       if (error.response.status === 404) {
         throw new Error(`Note with ID ${id} not found.`);
       }
-      // Gérer d'autres erreurs HTTP spécifiques si nécessaire
+      // Handle other specific HTTP errors if necessary
       throw new Error(
         `Failed to update note: ${error.response.statusText || 'Server error'}`
       );
     }
-    // Erreur réseau ou autre
+    // Network error or other
     throw new Error('Failed to update note. Please check your connection.');
   }
 };
 
 // --- Versioning API Functions ---
 
-// Interface for NoteVersion (match backend schema)
-export interface NoteVersion {
-  id: number;
-  note_id: number;
-  title: string;
-  content: string;
-  version_timestamp: string;
-}
-
-// GET /api/v1/notes/{note_id}/versions/
+/**
+ * Fetches all versions of a note from the backend API.
+ * @param noteId - The ID of the note to fetch versions for.
+ * @returns A promise that resolves to an array of NoteVersion objects.
+ * @throws An error if the request fails or the response data is invalid.
+ */
 export const getNoteVersions = async (
   noteId: number
 ): Promise<NoteVersion[]> => {
@@ -231,12 +202,12 @@ export const getNoteVersions = async (
   }
 };
 
-// POST /api/v1/notes/{note_id}/versions/{version_id}/restore/
-// Backend returns the updated Note
-export interface RestorePayload {
-  noteId: number | null;
-  versionId: number;
-}
+/**
+ * Restores a note version.
+ * @param payload - The payload containing the note ID and version ID.
+ * @returns A promise that resolves to the updated Note object.
+ * @throws An error if the request fails or the response data is invalid.
+ */
 export const restoreNoteVersion = async ({
   noteId,
   versionId,

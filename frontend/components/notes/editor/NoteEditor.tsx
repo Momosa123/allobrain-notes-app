@@ -11,7 +11,11 @@ interface NoteEditorProps {
 }
 
 /**
- * NoteEditor component that displays a note
+ * NoteEditor component that displays a note editor
+ * @param {string} title - The title of the note
+ * @param {string} content - The content of the note
+ * @param {function} onTitleChange - The function to call when the title changes
+ * @param {function} onContentChange - The function to call when the content changes
  */
 export default function NoteEditor({
   title,
@@ -20,7 +24,7 @@ export default function NoteEditor({
   onContentChange,
 }: NoteEditorProps) {
   return (
-    <div className="flex h-full flex-col space-y-4 p-6">
+    <div className="mt-24 ml-36 flex h-full flex-col space-y-4 p-6">
       {/* Title Input */}
       <Input
         placeholder="Untitled"

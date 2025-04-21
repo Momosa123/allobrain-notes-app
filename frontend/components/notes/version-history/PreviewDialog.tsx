@@ -5,14 +5,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { NoteVersion } from '@/lib/api';
+import { NoteVersion } from '@/lib/types/noteTypes';
 
 interface PreviewDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   version: NoteVersion | null;
 }
-
+/**
+ * PreviewDialog component that displays a preview of a note
+ * @param {boolean} isOpen - Whether the dialog is open
+ * @param {function} onOpenChange - The function to call when the dialog is opened or closed
+ * @param {NoteVersion | null} version - The version of the note to preview
+ */
 export default function PreviewDialog({
   isOpen,
   onOpenChange,

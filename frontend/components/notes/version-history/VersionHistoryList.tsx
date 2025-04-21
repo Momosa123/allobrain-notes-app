@@ -1,6 +1,6 @@
 import React from 'react';
 import VersionListItem from './VersionListItem';
-import { NoteVersion } from '@/lib/api';
+import { NoteVersion } from '@/lib/types/noteTypes';
 
 interface VersionHistoryListProps {
   versions: NoteVersion[];
@@ -8,7 +8,13 @@ interface VersionHistoryListProps {
   onPreview?: (version: NoteVersion) => void;
   onCompare?: (version: NoteVersion) => void;
 }
-
+/**
+ * VersionHistoryList component that displays a list of versions
+ * @param {NoteVersion[]} versions - The list of versions to display
+ * @param {function} onRestore - The function to call when a version is restored
+ * @param {function} onPreview - The function to call when a version is previewed
+ * @param {function} onCompare - The function to call when a version is compared
+ */
 export default function VersionHistoryList({
   versions,
   onRestore,

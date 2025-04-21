@@ -1,12 +1,17 @@
 import React from 'react';
-import { Note } from '@/lib/api';
+import { Note } from '@/lib/types/noteTypes';
 
 interface NoteListItemProps {
   note: Note;
   isSelected: boolean;
   onSelect: (id: number) => void;
 }
-
+/**
+ * NoteListItem component that displays a note in the sidebar
+ * @param {Note} note - The note to display
+ * @param {boolean} isSelected - Whether the note is selected
+ * @param {function} onSelect - The function to call when the note is selected
+ */
 export default function NoteListItem({
   note,
   isSelected,

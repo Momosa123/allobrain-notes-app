@@ -16,7 +16,11 @@ interface NoteEditorState {
   resetEditorState: () => void;
 }
 
-// Create the store
+/**
+ * Create the store
+ * @param set - The set function from the create function
+ * @returns The store
+ */
 export const useNoteStore = create<NoteEditorState>((set) => ({
   // Initial state
   selectedNoteId: null,
