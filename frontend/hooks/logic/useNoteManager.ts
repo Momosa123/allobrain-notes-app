@@ -1,12 +1,12 @@
 import { useMemo, useCallback, useEffect } from 'react';
 import { useNoteStore } from '@/store/noteStore';
-import { useNotesQuery } from './useNotesQuery';
+import { useNotesQuery } from '../api/useNotesQuery';
 import {
   useCreateNoteMutation,
   useUpdateNoteMutation,
   useDeleteNoteMutation,
-} from './useNoteMutations';
-import { useRestoreNoteVersionMutation } from './useVersionMutations';
+} from '../api/useNoteMutations';
+import { useRestoreNoteVersionMutation } from '../api/useVersionMutations';
 import {
   Note,
   NoteCreatePayload,
