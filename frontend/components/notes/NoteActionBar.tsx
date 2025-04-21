@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pencil, GitCompareArrows, Save, Trash2, History } from 'lucide-react';
+import { Pencil, Save, Trash2, History } from 'lucide-react';
 
 import { TooltipProvider } from '@/components/ui/tooltip';
 import IconButton from '../ui/IconButton';
@@ -96,14 +96,6 @@ export default function NoteActionBar({
             (selectedNoteId === null || isSaving) &&
               'disabled:cursor-not-allowed disabled:opacity-50'
           )}
-          iconSize="size-5"
-        />
-
-        <IconButton
-          icon={GitCompareArrows}
-          tooltipContent="View Versions (Coming Soon)"
-          srText="View Versions"
-          disabled
           iconSize="size-5"
         />
       </div>

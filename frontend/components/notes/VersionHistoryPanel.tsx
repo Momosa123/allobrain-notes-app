@@ -4,29 +4,20 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetClose,
 } from '@/components/ui/sheet';
-import { X } from 'lucide-react'; // Icon for close button
 import VersionHistoryList from './VersionHistoryList';
-import LoadingSpinner from '@/components/ui/LoadingSpinner'; // Assuming LoadingSpinner exists
-
-// Assuming NoteVersion interface is defined elsewhere or defined here
-interface NoteVersion {
-  id: number;
-  note_id: number;
-  title: string;
-  content: string;
-  version_timestamp: string; // ISO string format expected
-}
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { NoteVersion } from '@/lib/api';
 
 interface VersionHistoryPanelProps {
-  isOpen: boolean; // Controls visibility
-  onClose: () => void; // Function to call when closing the panel
-  versions: NoteVersion[] | undefined; // Array of versions (can be undefined while loading)
-  isLoading: boolean; // Loading state for fetching versions
-  isError: boolean; // Error state for fetching versions
-  onRestore: (versionId: number) => void; // Restore callback function
-  // onPreview?: (version: NoteVersion) => void; // Optional preview callback
+  isOpen: boolean;
+  onClose: () => void;
+  versions: NoteVersion[] | undefined;
+  isLoading: boolean;
+  isError: boolean;
+  onRestore: (versionId: number) => void;
+  onPreview?: (version: NoteVersion) => void;
+  onCompare?: (version: NoteVersion) => void;
 }
 
 export default function VersionHistoryPanel({
@@ -36,14 +27,14 @@ export default function VersionHistoryPanel({
   isLoading,
   isError,
   onRestore,
-  // onPreview,
+  onPreview,
+  onCompare,
 }: VersionHistoryPanelProps) {
   return (
     <Sheet open={isOpen} onOpenChange={(open: boolean) => !open && onClose()}>
       <SheetContent className="flex w-[320px] flex-col sm:w-[400px]">
         <SheetHeader>
           <SheetTitle>Historique des Versions</SheetTitle>
-          {/* Optional: <SheetDescription>...</SheetDescription> */}
         </SheetHeader>
 
         <div className="mt-4 flex-grow overflow-y-auto pr-6">
@@ -61,7 +52,8 @@ export default function VersionHistoryPanel({
             <VersionHistoryList
               versions={versions || []}
               onRestore={onRestore}
-              // onPreview={onPreview}
+              onPreview={onPreview}
+              onCompare={onCompare}
             />
           )}
         </div>

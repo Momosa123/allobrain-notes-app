@@ -1,12 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { restoreNoteVersion, Note } from '../lib/api'; // Assuming Note type is exported from api
+import { restoreNoteVersion, Note, RestorePayload } from '../lib/api'; // Assuming Note type is exported from api
 import { useNoteStore } from '@/store/noteStore'; // Import Zustand store hook
 import { toast } from 'sonner'; // Import toast
-
-interface RestorePayload {
-  noteId: number;
-  versionId: number;
-}
 
 export const useRestoreNoteVersionMutation = () => {
   const queryClient = useQueryClient();

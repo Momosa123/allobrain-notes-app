@@ -10,70 +10,66 @@ import {
   vi,
 } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-// Import 'rest' for MSW v1, no HttpResponse needed
+
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
-// Import userEvent
+
 import userEvent from '@testing-library/user-event';
 
-import Home from '../app/page'; // Importe le composant à tester
-import { Note } from '@/lib/api'; // Besoin du type Note pour le mock
+import Home from '../app/page'; // Import component to test
+import { Note } from '@/lib/api'; // Need Note type for mock
 
 // --- Configuration MSW ---
-// Définit les "handlers" (intercepteurs) pour nos requêtes API
+// Define handlers (interceptors) for our API requests
 const initialHandlers = [
-  // Use rest.get and res/ctx for MSW v1
   rest.get('*/api/v1/notes/', (req, res, ctx) => {
     console.log(
       'MSW: Intercepted GET /api/v1/notes/ - DEFAULT returning empty array'
     );
     return res(ctx.status(200), ctx.json([]));
   }),
-  // --- Ajoute d'autres handlers ici si besoin pour d'autres tests ---
 ];
 
-// Crée le serveur MSW pour l'environnement Node.js
+// Create MSW server for Node.js environment
 const server = setupServer(...initialHandlers);
 
-// Démarre le serveur avant tous les tests
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' })); // Erreur si une requête non mockée est faite
+// Start server before all tests
+beforeAll(() => server.listen({ onUnhandledRequest: 'error' })); // Error if an unmocked request is made
 
-// Réinitialise les handlers après chaque test (bonne pratique)
+// Reset handlers after each test
 afterEach(() => {
   server.resetHandlers();
   vi.restoreAllMocks();
 });
 
-// Arrête le serveur après tous les tests
+// Stop server after all tests
 afterAll(() => server.close());
-// --- Fin Configuration MSW ---
 
-// --- Données Mockées ---
+// --- Mocked Data ---
 const mockNotes: Note[] = [
   {
     id: 1,
     title: 'First Mock Note',
     content: 'Content 1',
-    created_at: '2024-01-01T10:00:00', // Format sans offset
-    updated_at: '2024-01-02T11:00:00', // Format sans offset
+    created_at: '2024-01-01T10:00:00',
+    updated_at: '2024-01-02T11:00:00',
   },
   {
     id: 2,
     title: 'Second Mock Note',
     content: 'Content 2',
     created_at: '2024-01-03T12:00:00',
-    updated_at: null, // Test avec null
+    updated_at: null, // Test with null
   },
 ];
-// --- Fin Données Mockées ---
 
-// --- Fonction Helper pour le Rendu ---
-// Crée un nouveau QueryClient pour chaque test pour isoler les caches
+// --- Helper Function for Rendering ---
+// Create a new QueryClient for each test to isolate caches
 const createTestQueryClient = () =>
   new QueryClient({
     defaultOptions: {
       queries: {
-        retry: false, // Désactive les retries automatiques pour les tests
+        retry: false, // Disable automatic retries for tests
       },
     },
   });
@@ -86,79 +82,76 @@ const renderHomePage = () => {
     </QueryClientProvider>
   );
 };
-// --- Fin Fonction Helper ---
 
-// --- Les Tests ---
+// --- The Tests ---
 describe('Home Page', () => {
   it('should render the main title and placeholder when no notes are fetched', async () => {
     renderHomePage();
 
-    // Attend que le contenu principal (y compris le titre) soit affiché
+    // Wait for the main content (including the title) to be displayed
     await waitFor(() => {
-      // Vérifie que le titre principal (h1) est là
+      // Verify that the main title (h1) is present
       expect(
         screen.getByRole('heading', { name: /allonotes/i, level: 1 })
       ).toBeInTheDocument();
 
-      // Vérifie que le message placeholder "Select a note..." est présent
+      // Verify that the placeholder message "Select a note..." is present
       expect(
         screen.getByText(/select a note to view or edit/i)
       ).toBeInTheDocument();
 
-      // Vérifie aussi que le message "No notes found" est dans la sidebar
+      // Also verify that the message "No notes found" is in the sidebar
       expect(screen.getByText(/no notes found/i)).toBeInTheDocument();
 
-      // Optionnel : Vérifier que le spinner n'est plus là DANS le même check
+      //Verify that the spinner is not present in the same check
       expect(screen.queryByLabelText(/loading/i)).not.toBeInTheDocument();
     });
 
-    // On peut garder cette vérification hors du waitFor car l'erreur ne devrait jamais apparaître
     expect(screen.queryByText(/error fetching notes/i)).not.toBeInTheDocument();
   });
 
   it('should render the notes list when notes are fetched', async () => {
-    // Surcharge le handler GET pour ce test spécifique
+    // Override the GET handler for this specific test
     server.use(
       rest.get('*/api/v1/notes/', (req, res, ctx) => {
-        // Utilise rest et res/ctx
+        // Use rest and res/ctx
         console.log(
           'MSW: Intercepted GET /api/v1/notes/ - returning mock notes'
         );
-        // Utilise HttpResponse.json si tu as la dépendance ou res(ctx.json(...)) sinon
-        // Assumons res(ctx.json(...)) pour MSW v1
+
         return res(ctx.status(200), ctx.json(mockNotes));
       })
     );
 
     renderHomePage();
 
-    // Attend que la liste des notes soit rendue (on cherche le titre de la première note)
+    // Wait for the notes list to be rendered (find the title of the first note)
     await waitFor(() => {
       expect(screen.getByText(mockNotes[0].title)).toBeInTheDocument();
     });
 
-    // Vérifie que les titres des deux notes sont présents
+    // Verify that the titles of the two notes are present
     expect(screen.getByText(mockNotes[0].title)).toBeInTheDocument();
     expect(screen.getByText(mockNotes[1].title)).toBeInTheDocument();
 
-    // Vérifie que le message "No notes found" n'est PAS présent
+    // Verify that the message "No notes found" is not present
     expect(screen.queryByText(/no notes found/i)).not.toBeInTheDocument();
 
-    // Le message "Select a note..." devrait toujours être là car rien n'est sélectionné
+    // The message "Select a note..." should always be present because nothing is selected
     expect(
       screen.getByText(/select a note to view or edit/i)
     ).toBeInTheDocument();
 
-    // Vérifie que le spinner n'est plus là
+    // Verify that the spinner is not present
     expect(screen.queryByLabelText(/loading/i)).not.toBeInTheDocument();
 
-    // Vérifie qu'il n'y a pas d'erreur
+    // Verify that there is no error
     expect(screen.queryByText(/error fetching notes/i)).not.toBeInTheDocument();
   });
 
-  // --- Nouveau Test : Sélection ---
+  // --- Test: Selection ---
   it('should display the selected note in the editor when clicked', async () => {
-    // 1. Setup: Surcharge le handler pour retourner les notes mockées
+    // 1. Setup: Override the handler to return the mocked notes
     server.use(
       rest.get('*/api/v1/notes/', (req, res, ctx) => {
         return res(ctx.status(200), ctx.json(mockNotes));
@@ -170,11 +163,11 @@ describe('Home Page', () => {
 
     renderHomePage();
 
-    // 2. Action: Attend que la première note soit visible et clique dessus
+    // 2. Action: Wait for the first note to be visible and click on it
     const firstNoteItem = await screen.findByText(mockNotes[0].title);
     await user.click(firstNoteItem);
 
-    // 3. Assertion: Attend que l'éditeur affiche le contenu de la note sélectionnée
+    // 3. Assertion: Wait for the editor to display the selected note's content
     const titleInput = await screen.findByRole('textbox', {
       name: /note title/i,
     });
@@ -185,11 +178,10 @@ describe('Home Page', () => {
     expect(titleInput).toHaveValue(mockNotes[0].title);
     expect(contentTextarea).toHaveValue(mockNotes[0].content);
 
-    // Optionnel : Vérifier que l'autre note n'est pas affichée dans l'éditeur
     expect(titleInput).not.toHaveValue(mockNotes[1].title);
   });
 
-  // --- New Test: Edit and Save ---
+  // --- Test: Edit and Save ---
   it('should enable save button on edit and save changes on click', async () => {
     // 1. Setup: Mock GET to return notes AND mock PUT for the update
     const updatedNoteData = {
@@ -241,12 +233,12 @@ describe('Home Page', () => {
       expect(saveButton).toBeDisabled();
     });
 
-    // Optional: Verify the editor content reflects the saved state
+    //  Verify the editor content reflects the saved state
     expect(titleInput).toHaveValue(updatedNoteData.title);
     expect(contentTextarea).toHaveValue(updatedNoteData.content);
   });
 
-  // --- Test: Create Note (Corrected Structure) ---
+  // --- Test: Create Note ---
   it('should create a new note when the new note button is clicked', async () => {
     // 1. Setup: Define mock for the new note and specific MSW handlers
     const newMockNote: Note = {
@@ -307,7 +299,7 @@ describe('Home Page', () => {
     expect(contentTextarea).toHaveValue(newMockNote.content);
   });
 
-  // --- New Test: Delete Note ---
+  // --- Test: Delete Note ---
   it('should delete the selected note when delete is confirmed', async () => {
     // 1. Setup: Mock GET to return notes and mock DELETE for the specific note
     const noteToDelete = mockNotes[0];
@@ -361,9 +353,5 @@ describe('Home Page', () => {
     expect(
       screen.queryByRole('textbox', { name: /note title/i })
     ).not.toBeInTheDocument();
-
-    // No need to call confirmSpy.mockRestore(); if using vi.restoreAllMocks() in afterEach
   });
-
-  // --- Add other tests here ---
 });
