@@ -34,22 +34,48 @@ export default function DiffDialog({
     return null;
   }
 
+  const oldTitle = oldVersion.title || 'Sans titre';
+  const newTitle = currentTitle || 'Sans titre';
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="min-h-[70vh] min-w-[50vw]">
+      <DialogContent className="min-h-[70vh] max-w-7xl min-w-[50vw]">
         <DialogHeader>
           <DialogTitle>Comparaison des versions</DialogTitle>
         </DialogHeader>
-        <div className="min-h-[70vh] min-w-[40vw] overflow-y-auto">
-          <ReactDiffViewer
-            oldValue={oldVersion.content || ''}
-            newValue={currentContent || ''}
-            leftTitle={`Version : ${oldVersion.title || 'Sans titre'}`}
-            rightTitle={`Version actuelle : ${currentTitle || 'Sans titre'}`}
-            splitView={false}
-            compareMethod={DiffMethod.WORDS}
-            hideLineNumbers={false}
-          />
+
+        <div className="max-h-[75vh] min-h-[70vh] overflow-y-auto pr-2">
+          <div className="mb-4">
+            <h4 className="text-muted-foreground mb-2 text-sm font-semibold">
+              Changement de Titre
+            </h4>
+            <div className="border dark:border-gray-700">
+              <ReactDiffViewer
+                oldValue={oldTitle}
+                newValue={newTitle}
+                splitView={false}
+                compareMethod={DiffMethod.WORDS}
+                hideLineNumbers={true}
+              />
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-muted-foreground mb-2 text-sm font-semibold">
+              Changement de Contenu
+            </h4>
+            <div className="border dark:border-gray-700">
+              <ReactDiffViewer
+                oldValue={oldVersion.content || ''}
+                newValue={currentContent || ''}
+                splitView={false}
+                compareMethod={DiffMethod.WORDS}
+                hideLineNumbers={false}
+                leftTitle={`Version du ${new Date(oldVersion.version_timestamp).toLocaleDateString()}`}
+                rightTitle="Version Actuelle"
+              />
+            </div>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
