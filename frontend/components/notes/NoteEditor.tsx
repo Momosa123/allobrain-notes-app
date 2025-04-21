@@ -11,7 +11,11 @@ interface NoteEditorProps {
 }
 
 /**
- * NoteEditor component that displays a note
+ * NoteEditor component that displays a note editor
+ * @param {string} title - The title of the note
+ * @param {string} content - The content of the note
+ * @param {function} onTitleChange - The function to call when the title changes
+ * @param {function} onContentChange - The function to call when the content changes
  */
 export default function NoteEditor({
   title,
