@@ -2,7 +2,7 @@ import React from 'react';
 import { Pencil, Save, Trash2, History } from 'lucide-react';
 
 import { TooltipProvider } from '@/components/ui/tooltip';
-import IconButton from '../ui/IconButton';
+import IconButton from '../../ui/IconButton';
 import { cn } from '@/lib/utils';
 
 interface NoteActionBarProps {
