@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/sheet';
 import VersionHistoryList from './VersionHistoryList';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
-import { NoteVersion } from '@/lib/api';
+import { NoteVersion } from '@/lib/types/noteTypes';
 
 interface VersionHistoryPanelProps {
   isOpen: boolean;
@@ -19,7 +19,14 @@ interface VersionHistoryPanelProps {
   onPreview?: (version: NoteVersion) => void;
   onCompare?: (version: NoteVersion) => void;
 }
-
+/**
+ * VersionHistoryPanel component that displays a list of versions
+ * @param {boolean} isOpen - Whether the panel is open
+ * @param {function} onClose - The function to call when the panel is closed
+ * @param {NoteVersion[] | undefined} versions - The list of versions to display
+ * @param {boolean} isLoading - Whether the versions are loading
+ * @param {boolean} isError - Whether there is an error loading the versions
+ */
 export default function VersionHistoryPanel({
   isOpen,
   onClose,
