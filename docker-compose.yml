@@ -1,0 +1,35 @@
+version: "3.8" # Spécifie la version de la syntaxe Docker Compose
+
+services:
+  # --- Service Backend (FastAPI) ---
+  backend:
+    build:
+      context: ./backend # Indique où trouver le Dockerfile pour construire l'image
+      # dockerfile: Dockerfile # (Optionnel si le fichier s'appelle Dockerfile)
+    ports:
+      - "8000:8000" # Mappe le port 8000 de l'hôte au port 8000 du conteneur
+    # networks: # (Optionnel, Docker Compose crée un réseau par défaut)
+    #   - app-network
+    # volumes: # (Optionnel, pour le développement avec live-reload)
+    #   - ./backend:/app
+
+  # --- Service Frontend (Next.js) ---
+  frontend:
+    build:
+      context: ./frontend # Indique où trouver le Dockerfile pour construire l'image
+    ports:
+      - "3000:3000" # Mappe le port 3000 de l'hôte au port 3000 du conteneur
+    environment:
+      # Très important : L'URL du backend vue depuis le conteneur frontend
+      - NEXT_PUBLIC_BACKEND_URL=http://backend:8000
+    # networks:
+    #   - app-network
+    depends_on: # Indique que le frontend dépend du backend
+      - backend
+    # volumes: # (Optionnel, pour le développement avec live-reload)
+    #  - ./frontend:/app
+    #  - /app/node_modules # Exclure node_modules du volume pour utiliser ceux de l'image
+    #  - /app/.next # Exclure .next du volume
+# networks: # (Optionnel, définition du réseau si besoin)
+#   app-network:
+#     driver: bridge
