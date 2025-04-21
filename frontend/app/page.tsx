@@ -2,19 +2,19 @@
 
 import { NoteVersion } from '@/lib/types/noteTypes';
 import { useCallback } from 'react';
-import { useHistoryPanel } from '@/hooks/useHistoryPanel';
-import { usePreviewDialog } from '@/hooks/usePreviewDialog';
-import { useDiffDialog } from '@/hooks/useDiffDialog';
-import { useNoteManager } from '@/hooks/useNoteManager';
-import VersionHistoryPanel from '@/components/notes/VersionHistoryPanel';
-import PreviewDialog from '@/components/notes/PreviewDialog';
-import DiffDialog from '@/components/notes/DiffDialog';
-import NoteSidebar from '@/components/notes/NoteSidebar';
-import NoteActionBar from '@/components/notes/NoteActionBar';
+import { useHistoryPanel } from '@/hooks/ui/useHistoryPanel';
+import { usePreviewDialog } from '@/hooks/ui/usePreviewDialog';
+import { useDiffDialog } from '@/hooks/ui/useDiffDialog';
+import { useNoteManager } from '@/hooks/logic/useNoteManager';
+import VersionHistoryPanel from '@/components/notes/version-history/VersionHistoryPanel';
+import PreviewDialog from '@/components/notes/version-history/PreviewDialog';
+import DiffDialog from '@/components/notes/version-history/DiffDialog';
+import NoteSidebar from '@/components/notes/sidebar/NoteSidebar';
+import NoteActionBar from '@/components/notes/editor/NoteActionBar';
 import NoteLayout from '@/components/layout/NoteLayout';
-import EditorDisplay from '@/components/notes/EditorDisplay';
-import { useNoteVersionsQuery } from '@/hooks/useNoteVersionsQuery';
-import { useUnsavedChangesGuard } from '@/hooks/useUnsavedChangesGuard';
+import EditorDisplay from '@/components/notes/editor/EditorDisplay';
+import { useNoteVersionsQuery } from '@/hooks/api/useNoteVersionsQuery';
+import { useUnsavedChangesGuard } from '@/hooks/guards/useUnsavedChangesGuard';
 import QueryBoundary from '@/components/common/QueryBoundary';
 
 /*
