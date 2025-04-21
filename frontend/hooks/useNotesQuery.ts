@@ -1,6 +1,6 @@
-// frontend/hooks/useNotesQuery.ts
 import { useQuery } from '@tanstack/react-query';
-import { fetchNotes, Note } from '@/lib/api'; // Importe la fonction API et le type Note
+import { fetchNotes } from '@/lib/api';
+import { Note } from '@/lib/types/noteTypes';
 
 /**
  * Custom hook to fetch all notes using React Query.
@@ -8,12 +8,10 @@ import { fetchNotes, Note } from '@/lib/api'; // Importe la fonction API et le t
  * @returns The result object from useQuery (data, isLoading, isError, error, etc.)
  */
 export function useNotesQuery() {
-  // Encapsule l'appel useQuery
   return useQuery<Note[], Error>({
-    queryKey: ['notes'], // La clé de requête pour identifier cette donnée
-    queryFn: fetchNotes, // La fonction API à appeler pour fetcher
-    // Tu pourrais ajouter d'autres options ici :
-    // staleTime: 5 * 60 * 1000, // Données considérées fraîches pendant 5 minutes
-    // refetchOnWindowFocus: false, // Éviter les refetchs automatiques
+    queryKey: ['notes'], // The key for this query
+    queryFn: fetchNotes,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 }
