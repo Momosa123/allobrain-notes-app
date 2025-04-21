@@ -1,17 +1,19 @@
 import React from 'react';
-import VersionListItem from './VersionListItem'; // Import the item component
+import VersionListItem from './VersionListItem';
 import { NoteVersion } from '@/lib/api';
 
 interface VersionHistoryListProps {
-  versions: NoteVersion[]; // Array of versions
-  onRestore: (versionId: number) => void; // Restore callback function
-  // onPreview?: (version: NoteVersion) => void; // Optional preview callback
+  versions: NoteVersion[];
+  onRestore: (versionId: number) => void;
+  onPreview?: (version: NoteVersion) => void;
+  onCompare?: (version: NoteVersion) => void;
 }
 
 export default function VersionHistoryList({
   versions,
   onRestore,
-  // onPreview,
+  onPreview,
+  onCompare,
 }: VersionHistoryListProps) {
   if (!versions || versions.length === 0) {
     return (
@@ -22,15 +24,14 @@ export default function VersionHistoryList({
   }
 
   return (
-    <div className="max-h-96 overflow-y-auto">
-      {' '}
-      {/* Container with vertical scroll */}
+    <div>
       {versions.map((version) => (
         <VersionListItem
-          key={version.id} // Use version ID as the key
+          key={version.id}
           version={version}
           onRestore={onRestore}
-          // onPreview={onPreview} // Pass down preview handler if needed
+          onPreview={onPreview}
+          onCompare={onCompare}
         />
       ))}
     </div>

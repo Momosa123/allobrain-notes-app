@@ -1,6 +1,11 @@
 'use client';
 
-import { Note, NoteCreatePayload, NoteUpdatePayload } from '@/lib/api';
+import {
+  Note,
+  NoteCreatePayload,
+  NoteUpdatePayload,
+  NoteVersion,
+} from '@/lib/api';
 import { useEffect, useState, useCallback } from 'react';
 import { useNoteStore } from '@/store/noteStore';
 // Import custom hooks
@@ -14,11 +19,14 @@ import { useRestoreNoteVersionMutation } from '@/hooks/useVersionMutations';
 import { useNoteVersionsQuery } from '@/hooks/useNoteVersionsQuery';
 import { toast } from 'sonner';
 import VersionHistoryPanel from '@/components/notes/VersionHistoryPanel';
+import PreviewDialog from '@/components/notes/PreviewDialog';
+import DiffDialog from '@/components/notes/DiffDialog';
 
 import NoteSidebar from '@/components/notes/NoteSidebar';
 import NoteEditor from '@/components/notes/NoteEditor';
 import NoteActionBar from '@/components/notes/NoteActionBar';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+
 /*
   Home component that displays a list of notes
  */
@@ -38,11 +46,26 @@ export default function Home() {
   // --- Local UI State for Panel ---
   const [isHistoryPanelOpen, setIsHistoryPanelOpen] = useState(false);
 
+  // --- Local UI State for Preview Modal ---
+  const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [versionToPreview, setVersionToPreview] = useState<NoteVersion | null>(
+    null
+  );
+
+  // --- Local UI State for Diff Modal ---
+  const [isDiffModalOpen, setIsDiffModalOpen] = useState(false);
+  const [versionToCompare, setVersionToCompare] = useState<NoteVersion | null>(
+    null
+  );
+  const [currentTitleForDiff, setCurrentTitleForDiff] = useState<string>('');
+  const [currentContentForDiff, setCurrentContentForDiff] =
+    useState<string>('');
+
   const { data: notes, isLoading, isError, error } = useNotesQuery();
   const createMutation = useCreateNoteMutation();
   const updateMutation = useUpdateNoteMutation();
   const deleteMutation = useDeleteNoteMutation();
-  const restoreMutation = useRestoreNoteVersionMutation(); // Instantiate the new hook
+  const restoreMutation = useRestoreNoteVersionMutation();
 
   // --- Query for Note Versions (Using Custom Hook) ---
   const {
@@ -169,6 +192,27 @@ export default function Home() {
     [selectedNoteId, restoreMutation, closeHistoryPanel]
   );
 
+  // --- Preview Handler ---
+  const handlePreviewVersion = useCallback((version: NoteVersion) => {
+    setVersionToPreview(version);
+    setIsPreviewModalOpen(true);
+  }, []);
+
+  // --- Compare Handler ---
+  const handleCompareVersion = useCallback(
+    (versionToDiff: NoteVersion) => {
+      // Capture current editor state from Zustand
+      const currentTitle = editedTitle;
+      const currentContentValue = editedContent;
+
+      setVersionToCompare(versionToDiff);
+      setCurrentTitleForDiff(currentTitle);
+      setCurrentContentForDiff(currentContentValue);
+      setIsDiffModalOpen(true);
+    },
+    [editedTitle, editedContent]
+  );
+
   // --- Loading/Error/Render Logic  ---
   if (isLoading) {
     return (
@@ -182,7 +226,7 @@ export default function Home() {
   if (isError)
     return <div>Error fetching notes: {error?.message || 'Unknown error'}</div>;
 
-  // isMutating now correctly reflects the pending state of custom hook mutations
+  // --- Mutation State ---
   const isMutating =
     createMutation.isPending ||
     deleteMutation.isPending ||
@@ -240,6 +284,24 @@ export default function Home() {
         isLoading={isVersionsLoading}
         isError={isVersionsError}
         onRestore={handleRestoreVersion}
+        onPreview={handlePreviewVersion}
+        onCompare={handleCompareVersion}
+      />
+
+      {/* Render the Preview Dialog */}
+      <PreviewDialog
+        isOpen={isPreviewModalOpen}
+        onOpenChange={setIsPreviewModalOpen}
+        version={versionToPreview}
+      />
+
+      {/* Render the Diff Dialog */}
+      <DiffDialog
+        isOpen={isDiffModalOpen}
+        onOpenChange={setIsDiffModalOpen}
+        oldVersion={versionToCompare}
+        currentTitle={currentTitleForDiff}
+        currentContent={currentContentForDiff}
       />
     </main>
   );
