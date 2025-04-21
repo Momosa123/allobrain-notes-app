@@ -28,7 +28,7 @@ export function useUnsavedChangesGuard({
       // There are changes, ask for confirmation
       if (
         window.confirm(
-          'You have unsaved changes. Save before proceeding?\n(Cancel to discard changes and proceed)'
+          'Vous avez des modifications non enregistrées. Enregistrer avant de continuer ?\n(Annuler pour abandonner les modifications et continuer)'
         )
       ) {
         // The user wants to save
