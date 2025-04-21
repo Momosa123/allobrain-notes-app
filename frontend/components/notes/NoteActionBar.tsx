@@ -14,8 +14,15 @@ interface NoteActionBarProps {
   hasChanges: boolean;
   isSaving: boolean;
 }
-/*
+/**
   NoteActionBar component that displays icons for actions on a note
+  @param {number | null} selectedNoteId - The id of the selected note
+  @param {function} onCreateNote - The function to call when the new note button is clicked
+  @param {function} onDeleteNote - The function to call when the delete note button is clicked
+  @param {function} onSaveChanges - The function to call when the save changes button is clicked
+  @param {function} onShowHistory - The function to call when the history button is clicked
+  @param {boolean} hasChanges - Whether the note has changes
+  @param {boolean} isSaving - Whether the note is being saved
  */
 
 export default function NoteActionBar({
