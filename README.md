@@ -201,7 +201,7 @@ Ces choix techniques ont été motivés par des critères de simplicité, de per
 ## Pistes d'Amélioration Possibles
 
 - **Authentification/Utilisateurs:** Ajouter une gestion des utilisateurs pour que chacun ait ses propres notes notamment pour la mise en production.
-- **Optimisations UI/UX:** Responsivité, amélioration de l'UI des messages d'alerte, peaufinage de l'interface, landing page, ne pas autoriser l'enregistrement de la note initial, transitions, utilisation d'un éditeur de texte enrichi.
+- **Optimisations UI/UX:** Peaufiner l'interface, Rendre l'application responsive, amélioration de l'UI des messages d'alerte, landing page, ne pas autoriser l'enregistrement de la note initial, transitions, utilisation d'un éditeur de texte enrichi.
 - **Tests:** Ajouter une couverture de tests plus complète (unitaires, end to end) pour le backend et le frontend.
 - **Prise de notes par voix:** Permettre à l'utilisateur de dicter vocalement des notes via un module Speech-To-Text
 - **Système de RAG**: Pouvoir rechercher une note et aussi créer une base de connaissance pour une IA et permettre à l'utilisateur de pouvoir discuter avec une IA au sujet de ses notes.
