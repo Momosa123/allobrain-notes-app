@@ -243,7 +243,7 @@ describe('Home Page', () => {
     // 1. Setup: Define mock for the new note and specific MSW handlers
     const newMockNote: Note = {
       id: 99,
-      title: 'Untitled',
+      title: 'Sans titre',
       content: '',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
