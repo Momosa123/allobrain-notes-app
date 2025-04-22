@@ -32,13 +32,13 @@ export default function NoteListItem({
       onClick={() => onSelect(note.id)}
     >
       <h3 className="flex-shrink-0 truncate text-lg font-medium">
-        {note.title || 'Untitled'}
+        {note.title || 'Sans titre'}
       </h3>
       <p className="mt-1 flex-shrink-0 text-xs text-gray-600">
         {formattedDate}
       </p>
       <p className="mt-1 truncate text-sm text-gray-500">
-        {note.content || <span className="italic">No content</span>}
+        {note.content || <span className="italic">Sans contenu</span>}
       </p>
     </div>
   );
