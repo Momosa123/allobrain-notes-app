@@ -1,6 +1,6 @@
 # AlloNotes - Application de Prise de Notes Versionnée
 
-[AlloNotes Demo](https://bit.ly/4ioouht)
+[AlloNotes Demo](https://bit.ly/4jnumZS)
 
 ## Sommaire
 
