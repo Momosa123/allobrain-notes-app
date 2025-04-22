@@ -80,7 +80,7 @@ export function useNoteManager() {
 
   const createNote = useCallback(() => {
     const defaultNoteData: NoteCreatePayload = {
-      title: 'Untitled',
+      title: 'Sans titre',
       content: '',
     };
     createMutation.mutate(defaultNoteData);
