@@ -1,6 +1,6 @@
 # AlloNotes - Application de Prise de Notes Versionnée
 
-![AlloNotes Demo](placeholder.gif) <!-- Optionnel: Tu peux ajouter un GIF de démo ici si tu veux -->
+[AlloNotes Demo](https://bit.ly/4ioouht)
 
 ## Sommaire
 
