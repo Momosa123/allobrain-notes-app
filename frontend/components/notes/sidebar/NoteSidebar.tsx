@@ -53,7 +53,7 @@ export default function NoteSidebar({
             ))
           : !isLoading && (
               <p className="py-4 text-center text-sm text-gray-500">
-                No notes found
+                Pas de notes trouvées
               </p>
             )}
       </div>
