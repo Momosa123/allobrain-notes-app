@@ -42,13 +42,13 @@ export default function NoteActionBar({
     }
   };
 
-  let saveTooltip = 'Save Changes';
+  let saveTooltip = 'Enregistrer les modifications';
   if (!selectedNoteId) {
-    saveTooltip = 'Select a note to save';
+    saveTooltip = 'Sélectionnez une note pour enregistrer';
   } else if (!hasChanges) {
-    saveTooltip = 'No changes to save';
+    saveTooltip = 'Aucune modification à enregistrer';
   } else if (isSaving) {
-    saveTooltip = 'Saving...';
+    saveTooltip = 'Enregistrement...';
   }
 
   const isSaveDisabled = !selectedNoteId || !hasChanges || isSaving;
@@ -58,16 +58,16 @@ export default function NoteActionBar({
       <div className="flex h-[57px] items-center justify-end space-x-2 bg-white px-6 dark:border-gray-800 dark:bg-gray-950">
         <IconButton
           icon={Pencil}
-          tooltipContent="New Note"
-          srText="New Note"
+          tooltipContent="Nouvelle note"
+          srText="Nouvelle note"
           onClick={onCreateNote}
           iconSize="size-5"
         />
 
         <IconButton
           icon={History}
-          tooltipContent="View History"
-          srText="View History"
+          tooltipContent="Voir l'historique"
+          srText="Voir l'historique"
           onClick={onShowHistory}
           disabled={!selectedNoteId}
           className={cn(
@@ -79,7 +79,7 @@ export default function NoteActionBar({
         <IconButton
           icon={Save}
           tooltipContent={saveTooltip}
-          srText="Save Changes"
+          srText="Enregistrer les modifications"
           onClick={onSaveChanges}
           disabled={isSaveDisabled}
           className={cn(
@@ -93,9 +93,11 @@ export default function NoteActionBar({
         <IconButton
           icon={Trash2}
           tooltipContent={
-            selectedNoteId !== null ? 'Delete Note' : 'Select a note to delete'
+            selectedNoteId !== null
+              ? 'Supprimer la note'
+              : 'Sélectionnez une note pour la supprimer'
           }
-          srText="Delete Note"
+          srText="Supprimer la note"
           onClick={handleDeleteClick}
           disabled={selectedNoteId === null || isSaving}
           className={cn(
