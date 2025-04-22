@@ -27,7 +27,7 @@ export default function NoteEditor({
     <div className="mt-24 ml-36 flex h-full flex-col space-y-4 p-6">
       {/* Title Input */}
       <Input
-        placeholder="Untitled"
+        placeholder="Sans titre"
         value={title}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
           onTitleChange(e.target.value)
@@ -37,7 +37,7 @@ export default function NoteEditor({
       />
       {/* Content Textarea */}
       <Textarea
-        placeholder="Start writing your note..."
+        placeholder="Écrivez votre note..."
         value={content}
         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
           onContentChange(e.target.value)
