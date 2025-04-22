@@ -1,0 +1,31 @@
+# Fichiers Dockerfile et Compose (ne doivent pas être copiés dans l'image elle-même)
+Dockerfile
+docker-compose.yml
+
+# Fichiers de base de données
+*.db
+*.sqlite
+*.sqlite3
+
+# Environnement virtuel et cache Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Cache Pytest
+.pytest_cache/
+
+# Fichiers d'environnement
+.env*
+
+# Fichiers Git
+.git/
+.gitignore
+
+# VSCode specific
+.vscode/
+
+# macOS specific
+.DS_Store
